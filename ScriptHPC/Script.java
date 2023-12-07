@@ -486,30 +486,33 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"318[K]", "min(393.15,max(T,223.15))", "31507[mol/m^3]", "c/csmax"}, false);
 	
 	// Graphite: Diffusion coefficient //
-	model=mt.setup(model, "Graphite", "def", new String[]{"diffusion"}, 
-	new String[]{"D_int1(soc)","0","0", "0", "D_int1(soc)", "0", "0", "0", "D_int1(soc)"}, true);
+	String [] T=
+	{"D_int1(soc)", "0", "0",
+	 "0", "D_int1(soc)", "0", 
+	 "0", "0", "D_int1(soc)"};
+	model=mt.setup(model, "Graphite", "def", new String[]{"diffusion"}, T, true);
 	model=mt.newFunc(model, "Graphite", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
 	
 	// Graphite: Electrical conductivity //
-	model=mt.setup(model, "Graphite", "def", new String[]{"electricconductivity"}, 
-		new String[]{"100[S/m]", "0", "0", 
-					"0", "100[S/m]", "0", 
-					"0", "0", "100[S/m]"}, true);
+	String [] T=
+	{"100[S/m]", "0", "0",
+	 "0", "100[S/m]", "0",
+	  "0", "0", "100[S/m]"};
+	model=mt.setup(model, "Graphite", "def", new String[]{"electricconductivity"}, T, true);
 	
 	// Graphite: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
 	model=mt.setup(model, "Graphite", "ElectrodePotential", 
-		new String[]{"Eeq", "csmax", "soc"}, 
-		new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax"}, false);
-	
+	new String[]{"Eeq", "csmax", "soc"}, 
+	new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax"}, false);
 	model=mt.newFunc(model, "Graphite", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
 	
-	// Graphite: SOC definition
+	// Graphite: SOC definition //
 	model=mt.newProperty(model, "Graphite", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
 	model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax"}, new String[]{"0.98"}, false);
 	model=mt.setup(model, "Graphite", "OperationalSOC", 
-		new String[]{"socmax", "socmin"}, 
-		new String[]{"0.98", "0.0"}, false);
+	new String[]{"socmax", "socmin"}, 
+	new String[]{"0.98", "0.0"}, false);
 
 	// Graphite: Geometry selection //
 	model=geomSelection(model, "Graphite", "geom1_"+z.select("Graphite"));
@@ -518,97 +521,74 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	model=mt.newMaterial(model, "Lithium", new String[]{"none"});
 	
 	// Lithium: Electrical conductivity //
-	model=mt.setup(model, "Lithium", "def", new String[]{"electricconductivity"}, 
-		new String[]{"1/(92.8[n\u03a9*m])", "0", "0", 
-					 "0", "1/(92.8[n\u03a9*m])", "0", 
-					 "0", "0", "1/(92.8[n\u03a9*m])"}, true);
+	String [] T={
+	"1/(92.8[n\u03a9*m])", "0", "0", 
+	"0", "1/(92.8[n\u03a9*m])", "0", 
+	"0", "0", "1/(92.8[n\u03a9*m])"};
+	model=mt.setup(model, "Lithium", "def", new String[]{"electricconductivity"}, T, true);
 	
 	// Lithium: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"none"});
 	model=mt.setup(model, "Graphite", "ElectrodePotential", 
-		new String[]{"Eeq", "dEeqdT", "cEeqref"}, 
-		new String[]{"0[V]", "0[V/K]", "0[M]"}, false);
+	new String[]{"Eeq", "dEeqdT", "cEeqref"}, 
+	new String[]{"0[V]", "0[V/K]", "0[M]"}, false);
 	
-	// Graphite: Geometry selection //
+	// Lithium: Geometry selection //
 	model=geomSelection(model, "Lithium", "geom1_"+z.select("Lithium Foil"));
 
 	
 	// New material: Electrolyte //
 	model=mt.newMaterial(model, "Electrolyte", new String[]{"temperature", "concentration"});
 	model=mt.setup(model, "Electrolyte", "def", 
-		new String[]{"T_ref", "T2"}, 
-		new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
+	new String[]{"T_ref", "T2"}, 
+	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
 	
-	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", D, "piecewisecubic", "linear", "m^2/s", "");
-	
-	model.component("TestCase").material().create("mat3", "Common");
-	model.component("TestCase").material("mat3").label("LiPF6 in 3:7 EC:EMC (Liquid, Li-ion Battery)");
-	model.component("TestCase").material("mat3").propertyGroup("def").addInput("concentration");
-	model.component("TestCase").material("mat3").propertyGroup("def").addInput("temperature");
-	model.component("TestCase").material("mat3").propertyGroup("def").set("T_ref", "298[K]");
-	model.component("TestCase").material("mat3").propertyGroup("def").set("T2", "min(393.15,max(T,223.15))");
-	model.component("TestCase").material("mat3").propertyGroup("def").func().create("int1", "Interpolation");
-	model.component("TestCase").material("mat3").propertyGroup("def").func("int1").set("funcname", "DL_int1");
-	model.component("TestCase").material("mat3").propertyGroup("def").func("int1").set("table", new String[][]{
-		{"200", "3.9e-10/(1-200*59e-6)"}, 
-		{"500", "4.12e-10/(1-500*59e-6)"}, 
-		{"800", "4e-10/(1-800*59e-6)"}, 
-		{"1000", "3.8e-10/(1-1000*59e-6)"}, 
-		{"1200", "3.50e-10/(1-1200*59e-6)"}, 
-		{"1600", "2.68e-10/(1-1600*59e-6)"}, 
-		{"2000", "1.9e-10/(1-2000*59e-6)"}
-		});
-	model.component("TestCase").material("mat3").propertyGroup("def").func("int1").set("interp", "piecewisecubic");
-	model.component("TestCase").material("mat3").propertyGroup("def").func("int1").set("fununit", new String[]{"m^2/s"});
-	model.component("TestCase").material("mat3").propertyGroup("def").func("int1").set("argunit", new String[]{""});
-	model.component("TestCase").material("mat3").propertyGroup("def").set("diffusion", new String[]{
-		"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", 
-		"0", 
-		"0", 
-		"0", 
-		"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", 
-		"0", 
-		"0", 
-		"0", 
-		"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))"
-		});
-	model.component("TestCase").material("mat3").propertyGroup().create("ElectrolyteConductivity", "Electrolyte conductivity");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").addInput("concentration");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").addInput("temperature");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func().create("int1", "Interpolation");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func("int1").set("funcname", "sigmal_int1");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func("int1").set("table", new String[][]{
-		{"0", "1e-6"}, 
-		{"200", "0.455"}, 
-		{"500", "0.783"}, 
-		{"800", "0.935"}, 
-		{"1000", "0.95"}, 
-		{"1200", "0.927"}, 
-		{"1600", "0.78"}, 
-		{"2000", "0.60"}, 
-		{"2200", "0.515"}
-		});
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func("int1").set("interp", "piecewisecubic");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func("int1").set("fununit", new String[]{"S/m"});
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").func("int1").set("argunit", new String[]{""});
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").set("sigmal", new String[]{
-	"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", 
-	"0", 
-	"0", 
-	"0", 
-	"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", 
-	"0", 
-	"0", 
-	"0", 
-	"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))"
-	});
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").set("T_ref2", "298[K]");
-	model.component("TestCase").material("mat3").propertyGroup("ElectrolyteConductivity").set("T3", "min(393.15,max(T,223.15))");
-	model.component("TestCase").material("mat3").propertyGroup().create("SpeciesProperties", "Species properties");
-	model.component("TestCase").material("mat3").propertyGroup("SpeciesProperties").addInput("concentration");
-	model.component("TestCase").material("mat3").propertyGroup("SpeciesProperties").set("transpNum", "0.363");
-	model.component("TestCase").material("mat3").propertyGroup("SpeciesProperties").set("fcl", "1");
-	model.component("TestCase").material("mat3").selection().named("geom1_"+z.select("Electrolyte Separator"));
+	// Electrolyte: Diffusion coefficient //
+	String [][] table={
+	{"200", "3.9e-10/(1-200*59e-6)"}, 
+	{"500", "4.12e-10/(1-500*59e-6)"}, 
+	{"800", "4e-10/(1-800*59e-6)"}, 
+	{"1000", "3.8e-10/(1-1000*59e-6)"}, 
+	{"1200", "3.50e-10/(1-1200*59e-6)"}, 
+	{"1600", "2.68e-10/(1-1600*59e-6)"}, 
+	{"2000", "1.9e-10/(1-2000*59e-6)"}};
+	String [] T={
+	"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
+	"0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", 
+	"0", "0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))"};
+	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", table, "piecewisecubic", "linear", "m^2/s", "");
+	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true)
+
+	// Electrolyte: Electrolyte conductivity //
+	String [][] table={
+	{"0", "1e-6"}, 
+	{"200", "0.455"}, 
+	{"500", "0.783"}, 
+	{"800", "0.935"}, 
+	{"1000", "0.95"}, 
+	{"1200", "0.927"}, 
+	{"1600", "0.78"}, 
+	{"2000", "0.60"}, 
+	{"2200", "0.515"}};
+	String [] T={
+	"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", "0", 
+	"0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", 
+	"0", "0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))"};
+	model=mt.newProperty(model, "Electrolyte", "ElectrolyteConductivity", "Electrolyte conductivity", new String[]{"temperature", "concentration"});
+	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", table, "piecewisecubic", "linear", "S/m", "")
+	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", new String[]{"sigmal"}, T, true);
+	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", 
+	new String[]{"T_ref2", "T3"},
+	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
+
+	// Electrolyte: Species Properties //
+	model=mt.newProperty(model, "Electrolyte", "SpeciesProperties", "Species Properties", new String[]{"concentration"});
+	model=mt.setup(model, "Electrolyte", "SpeciesProperties", 
+	new String[]{"transpNum", "fcl"},
+	new String[]{"0.363", "1"}, false);
+
+	// Electrolyte: Geometry selection //
+	model=geomSelection(model, "Electrolyte", "geom1_"+z.select("Electrolyte Separator"));
 
 	return model;
 }
