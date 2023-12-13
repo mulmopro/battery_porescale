@@ -479,6 +479,8 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	Materials mt;
 	mt=new Materials();
 	int j=0;
+	String [] T=new String[9];
+	String [][] table;
 	boolean default_V=false;
 	
 	// New material: Graphite //
@@ -488,20 +490,19 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"318[K]", "min(393.15,max(T,223.15))", "31507[mol/m^3]", "c/csmax"}, false);
 	
 	// Graphite: Diffusion coefficient //
-	String [] T=
+	T=new String[]
 	{"D_int1(soc)", "0", "0",
 	 "0", "D_int1(soc)", "0", 
 	 "0", "0", "D_int1(soc)"};
 	model=mt.setup(model, "Graphite", "def", new String[]{"diffusion"}, T, true);
 	model=mt.newFunc(model, "Graphite", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
-	
+
 	// Graphite: Electrical conductivity //
-	String [] T=
+	T=new String[]
 	{"100[S/m]", "0", "0",
 	 "0", "100[S/m]", "0",
 	  "0", "0", "100[S/m]"};
 	model=mt.setup(model, "Graphite", "def", new String[]{"electricconductivity"}, T, true);
-	T=null;
 
 	// Graphite: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
@@ -518,14 +519,14 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"0.98", "0.0"}, false);
 
 	// Graphite: Geometry selection //
-	model=geomSelection(model, "Graphite", "geom1_"+z.select("Graphite"));
+	model=mt.geomSelection(model, "Graphite", "geom1_"+z.select("Graphite"));
 
 	// New material: Lithium //
 	model=mt.newMaterial(model, "Lithium", new String[]{"none"});
 	
 	// Lithium: Electrical conductivity //
-	String [] T={
-	"1/(92.8[n\u03a9*m])", "0", "0", 
+	T=new String[]
+	{"1/(92.8[n\u03a9*m])", "0", "0", 
 	"0", "1/(92.8[n\u03a9*m])", "0", 
 	"0", "0", "1/(92.8[n\u03a9*m])"};
 	model=mt.setup(model, "Lithium", "def", new String[]{"electricconductivity"}, T, true);
@@ -537,7 +538,7 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"0[V]", "0[V/K]", "0[M]"}, false);
 	
 	// Lithium: Geometry selection //
-	model=geomSelection(model, "Lithium", "geom1_"+z.select("Lithium Foil"));
+	model=mt.geomSelection(model, "Lithium", "geom1_"+z.select("Lithium Foil"));
 
 	
 	// New material: Electrolyte //
@@ -547,24 +548,24 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
 	
 	// Electrolyte: Diffusion coefficient //
-	String [][] table={
-	{"200", "3.9e-10/(1-200*59e-6)"}, 
+	table=new String[][]
+	{{"200", "3.9e-10/(1-200*59e-6)"}, 
 	{"500", "4.12e-10/(1-500*59e-6)"}, 
 	{"800", "4e-10/(1-800*59e-6)"}, 
 	{"1000", "3.8e-10/(1-1000*59e-6)"}, 
 	{"1200", "3.50e-10/(1-1200*59e-6)"}, 
 	{"1600", "2.68e-10/(1-1600*59e-6)"}, 
 	{"2000", "1.9e-10/(1-2000*59e-6)"}};
-	String [] T={
-	"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
+	T=new String[]
+	{"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
 	"0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", 
 	"0", "0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))"};
 	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", table, "piecewisecubic", "linear", "m^2/s", "");
-	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true)
+	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true);
 
 	// Electrolyte: Electrolyte conductivity //
-	String [][] table={
-	{"0", "1e-6"}, 
+	table=new String[][]
+	{{"0", "1e-6"}, 
 	{"200", "0.455"}, 
 	{"500", "0.783"}, 
 	{"800", "0.935"}, 
@@ -573,12 +574,12 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	{"1600", "0.78"}, 
 	{"2000", "0.60"}, 
 	{"2200", "0.515"}};
-	String [] T={
-	"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", "0", 
+	T=new String[]
+	{"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", "0", 
 	"0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", 
 	"0", "0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))"};
 	model=mt.newProperty(model, "Electrolyte", "ElectrolyteConductivity", "Electrolyte conductivity", new String[]{"temperature", "concentration"});
-	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", table, "piecewisecubic", "linear", "S/m", "")
+	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", table, "piecewisecubic", "linear", "S/m", "");
 	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", new String[]{"sigmal"}, T, true);
 	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", 
 	new String[]{"T_ref2", "T3"},
@@ -591,7 +592,7 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"0.363", "1"}, false);
 
 	// Electrolyte: Geometry selection //
-	model=geomSelection(model, "Electrolyte", "geom1_"+z.select("Electrolyte Separator"));
+	model=mt.geomSelection(model, "Electrolyte", "geom1_"+z.select("Electrolyte Separator"));
 
 	return model;
 }
