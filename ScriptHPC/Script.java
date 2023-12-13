@@ -116,7 +116,9 @@ class Materials
 
 	public Model newProperty(Model model, String label, String group, String property, String [] addInput)
 	{return model;}
+
 	public Model geomSelection(Model model, String label, String name)
+	{return model;}
 }
 
 public class Script{
@@ -499,7 +501,8 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	 "0", "100[S/m]", "0",
 	  "0", "0", "100[S/m]"};
 	model=mt.setup(model, "Graphite", "def", new String[]{"electricconductivity"}, T, true);
-	
+	T=null;
+
 	// Graphite: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
 	model=mt.setup(model, "Graphite", "ElectrodePotential", 

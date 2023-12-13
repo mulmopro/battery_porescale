@@ -102,7 +102,7 @@ public class Materials
 		{
 			if(label.equals(material[i]))
 			{
-				model.component("TestCase").material(materials[i]).selection().named(name);
+				model.component("TestCase").material(material[i]).selection().named(name);
 			}
 			i+=1;
 		}
