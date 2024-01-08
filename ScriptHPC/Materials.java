@@ -106,7 +106,7 @@ public class Materials
 			if(label.equals(material[i]))
 			{
 				mat="mat"+String.valueOf(i+1);
-				model.component("TestCase").material(material[i]).selection().named(name);
+				model.component("TestCase").material(mat).selection().named(name);
 			}
 			i+=1;
 		}
