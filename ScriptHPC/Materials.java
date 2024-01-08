@@ -98,6 +98,7 @@ public class Materials
 	
 	public Model geomSelection(Model model, String label, String name)
 	{
+		i=0;
 		while(i<material.length)
 		{
 			if(label.equals(material[i]))
