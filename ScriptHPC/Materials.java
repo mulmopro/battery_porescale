@@ -56,6 +56,7 @@ public class Materials
 		{
 			if(label.equals(material[i]))
 			{
+				mat="mat"+String.valueOf(i+1);
 				if(tensor)
 				{
 					model.component("TestCase").material(mat).propertyGroup(group).set(set[0], value);
@@ -83,6 +84,7 @@ public class Materials
 		{
 			if(label.equals(material[i]))
 			{
+				mat="mat"+String.valueOf(i+1);
 				model.component("TestCase").material(mat).propertyGroup().create(group, property);
 				counter=0;
 				while(counter<addInput.length && addInput[0]!="none")
@@ -103,6 +105,7 @@ public class Materials
 		{
 			if(label.equals(material[i]))
 			{
+				mat="mat"+String.valueOf(i+1);
 				model.component("TestCase").material(material[i]).selection().named(name);
 			}
 			i+=1;
