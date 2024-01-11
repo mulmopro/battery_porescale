@@ -319,7 +319,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	// Definition of the block that will become the final system //
 	model=op.Block(model, "Block 0", "center", "xmax/sf", "ymax/sf", "zmax/sf", "0", "0", "(zmin+zmax*0.5)/sf", false);
 	tmp=op.blk;
-	
+
 	// Selection and renaming of the System //
 	model=op.Selection(model, "Initial Domain", op.blk, "all", false);
 	z.define(op.sel, "Initial Domain");
@@ -348,7 +348,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	
 	model=op.Group(model, "Geometric Operations", z.select("Initial Domain"));
 	
-	// Seletion of all particles //
+	// Selection of all particles //
 	model=op.ComplementSelection(model, "All Particles", new String[]{z.select("Initial Domain")}, -1, true);
 	
 	// Cut and partition of the system through the particles //
