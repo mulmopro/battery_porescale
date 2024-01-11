@@ -506,9 +506,7 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 
 	// Graphite: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
-	model=mt.setup(model, "Graphite", "ElectrodePotential", 
-	new String[]{"Eeq", "csmax", "soc"}, 
-	new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax"}, false);
+	model=mt.setup(model, "Graphite", "ElectrodePotential", new String[]{"Eeq", "csmax", "soc"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax"}, false);
 	model=mt.newFunc(model, "Graphite", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
 	
 	// Graphite: SOC definition //
