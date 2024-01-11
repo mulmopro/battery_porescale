@@ -43,6 +43,7 @@ public class Materials
 				model.component("TestCase").material(mat).propertyGroup(group).func(intp).set("fununit", fununit);
 				model.component("TestCase").material(mat).propertyGroup(group).func(intp).set("argunit", argunit);
 				intp_c+=1;
+				break;
 			}
 			i+=1;
 		}
@@ -93,6 +94,7 @@ public class Materials
 					model.component("TestCase").material(mat).propertyGroup(group).addInput(addInput[counter]);
 					counter+=1;
 				}
+				break;
 			}
 			i+=1;
 		}
@@ -108,6 +110,7 @@ public class Materials
 			{
 				mat="mat"+String.valueOf(i+1);
 				model.component("TestCase").material(mat).selection().named(name);
+				break;
 			}
 			i+=1;
 		}
