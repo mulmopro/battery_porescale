@@ -67,6 +67,7 @@ public class Materials
 					counter=0;
 					while(counter<set.length)
 					{
+						model.component("TestCase").material(mat).propertyGroup("def").set(set[counter], "");
 						model.component("TestCase").material(mat).propertyGroup("def").set(set[counter], value[counter]);
 						counter+=1;
 					}
