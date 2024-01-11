@@ -511,10 +511,8 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	
 	// Graphite: SOC definition //
 	model=mt.newProperty(model, "Graphite", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
-	model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax"}, new String[]{"0.98"}, false);
-	model=mt.setup(model, "Graphite", "OperationalSOC", 
-	new String[]{"socmax", "socmin"}, 
-	new String[]{"0.98", "0.0"}, false);
+	//model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax"}, new String[]{"0.98"}, false);
+	model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"0.98", "0.0"}, false);
 
 	// Graphite: Geometry selection //
 	model=mt.geomSelection(model, "Graphite", "geom1_"+z.select("Graphite"));
