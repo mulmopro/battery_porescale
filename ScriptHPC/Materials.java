@@ -70,6 +70,7 @@ public class Materials
 						counter+=1;
 					}
 				}
+				break;
 			}
 			i+=1;
 		}
