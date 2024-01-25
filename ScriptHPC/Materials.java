@@ -1,14 +1,18 @@
 
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
 import com.comsol.model.*;
 import com.comsol.model.util.*;
 
 public class Materials
 {
-	private String mat="mat";					private int mat_c=1;
+	String mat="mat";					private int mat_c=1;
 	private String [] material=new String[20];	private int i=0	;
 	private String intp="int";					private int intp_c=1;
 	private int counter=0;
+	String tmp="tmp";
 	
 	public Model newMaterial(Model model, String label, String [] addInput)
 	{
@@ -58,7 +62,7 @@ public class Materials
 			if(label.equals(material[i]))
 			{
 				mat="mat"+String.valueOf(i+1);
-				if(tensor)
+				if(tensor==true)
 				{
 					model.component("TestCase").material(mat).propertyGroup(group).set(set[0], value);
 				}
@@ -67,8 +71,9 @@ public class Materials
 					counter=0;
 					while(counter<set.length)
 					{
-						model.component("TestCase").material(mat).propertyGroup("def").set(set[counter], "");
-						model.component("TestCase").material(mat).propertyGroup("def").set(set[counter], value[counter]);
+						tmp=value[counter];
+						model.component("TestCase").material(mat).propertyGroup(group).set(set[counter], "");
+						model.component("TestCase").material(mat).propertyGroup(group).set(set[counter], new String[]{value[counter]});
 						counter+=1;
 					}
 				}

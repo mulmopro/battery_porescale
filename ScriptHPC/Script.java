@@ -101,10 +101,11 @@ class Operations
 
 class Materials
 {
-	private String mat="mat";					private int mat_c=1;
+	String mat="mat";					private int mat_c=1;
 	private String [] material=new String[20];	private int i=0	;
 	private String intp="int";					private int intp_c=1;
 	private int counter=0;
+	String tmp="tmp";
 	
 	public Model newMaterial(Model model, String label, String [] addInput){return model;}
 	
@@ -474,15 +475,15 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	return model;
 	}
 	
-public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D)
+public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D) throws IOException
 {
 	Materials mt;
 	mt=new Materials();
 	int j=0;
 	String [] T=new String[9];
 	String [][] table;
-	boolean default_V=false;
-	
+	boolean default_V=false;	
+
 	// New material: Graphite //
 	model=mt.newMaterial(model, "Graphite", new String[]{"temperature", "concentration"});
 	model=mt.setup(model, "Graphite", "def", 
@@ -506,12 +507,11 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 
 	// Graphite: Equilibrium potential //
 	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
-	model=mt.setup(model, "Graphite", "ElectrodePotential", new String[]{"Eeq", "csmax", "soc"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax"}, false);
+	model=mt.setup(model, "Graphite", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "soc", "dEeqdT"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax", "0"}, false);
 	model=mt.newFunc(model, "Graphite", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
 	
 	// Graphite: SOC definition //
 	model=mt.newProperty(model, "Graphite", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
-	//model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax"}, new String[]{"0.98"}, false);
 	model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"0.98", "0.0"}, false);
 
 	// Graphite: Geometry selection //
@@ -528,8 +528,8 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	model=mt.setup(model, "Lithium", "def", new String[]{"electricconductivity"}, T, true);
 	
 	// Lithium: Equilibrium potential //
-	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"none"});
-	model=mt.setup(model, "Graphite", "ElectrodePotential", 
+	model=mt.newProperty(model, "Lithium", "ElectrodePotential", "Equilibrium potential", new String[]{"none"});
+	model=mt.setup(model, "Lithium", "ElectrodePotential", 
 	new String[]{"Eeq", "dEeqdT", "cEeqref"}, 
 	new String[]{"0[V]", "0[V/K]", "0[M]"}, false);
 	
