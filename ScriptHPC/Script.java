@@ -419,6 +419,20 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model.component("TestCase").geom("geom1").run("fin");
 	i=50;
 
+	model=op.BoxSelection (model, "Remove Details 1", 3, "intersects", 
+	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","-zmax","+zmax"}, "all", "", "on", false);
+
+	model=op.ComplementSelection(model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
+
+	model=op.AdjacentSelection(model, "Remove Details 3", new String[]{op.comsel}, 3, 2, true, true, "on", false);
+	
+	model=op.BallSelection(model, "Remove Details 4", "0", "0", "zmin-cc_thickness", "all", 3, "intersects", "off", false);
+	z.define(op.ballsel,"Current Collector");
+	
+	model=op.AdjacentSelection(model, "Remove Details 5", new String[]{op.ballsel}, 3, 2, false, true, "off", false);
+	z.define(op.adjsel, "Collector Boundaries");
+
+
 	// Selection and renaming of the different zones of the system //
 	
 	// Separator //
