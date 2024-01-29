@@ -15,9 +15,10 @@ public class Operations
 	String comsel="comsel";		private int comsel_c=1;
 	String copy="copy";			private int copy_c=1;
 	String del="del";			private int del_c=1;
-	String dif="dif";			private int dif_c=1;
+	String difsel="difsel";		private int difsel_c=1;
 	String elp="elp";			private int elp_c=1;
 	String grp="grp";			private int grp_c=1;
+	String igf="igf";			private int igf_c=1;
 	String imp="imp";			private int imp_c=1;
 	String intsel="intsel";		private int intsel_c=1;
 	String mpart="mpart";		private int mpart_c=1;
@@ -161,7 +162,19 @@ public class Operations
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(del);
 		return model;
 	}
-	
+
+	public Model DifferenceSelection (Model model, String label, String [] name, String [] subtract, int entitydim, boolean add)
+	{
+		difsel="difsel"+String.valueOf(difsel_c);
+		model.component("TestCase").geom("geom1").create(difsel, "DifferenceSelection");
+		model.component("TestCase").geom("geom1").feature(difsel).set("entitydim", entitydim);
+		model.component("TestCase").geom("geom1").feature(difsel).set("add", name);
+		model.component("TestCase").geom("geom1").feature(difsel).set("subtract", subtract);
+		model.component("TestCase").geom("geom1").run(difsel);
+		if (add)
+			model.component("TestCase").geom("geom1").nodeGroup(grp).add(difsel);
+		return model;
+	}
 	public Model Ellipsoide (Model model, String label, double x1, double y1, double z1, double x2, double y2, double z2, boolean add)
 	{
 		elp="elp"+String.valueOf(elp_c);
@@ -182,6 +195,18 @@ public class Operations
 		model.component("TestCase").geom("geom1").nodeGroup(grp).label(label);
 		model.component("TestCase").geom("geom1").nodeGroup(grp).placeAfter(place);
 		grp_c+=1;
+		return model;
+	}
+
+	public Model IgnoreFaces(Model model, String label, String name, boolean add)
+	{
+		igf="igf"+String.valueOf(igf_c);
+		model.component("TestCase").geom("geom1").create(igf, "IgnoreFaces");
+		model.component("TestCase").geom("geom1").feature(igf).label(label);
+		model.component("TestCase").geom("geom1").feature(igf).selection("input").named(name);
+		model.component("TestCase").geom("geom1").run(igf);
+		if (add)
+			model.component("TestCase").geom("geom1").nodeGroup(grp).add(igf);
 		return model;
 	}
 	

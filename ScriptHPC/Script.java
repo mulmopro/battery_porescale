@@ -62,9 +62,10 @@ class Operations
 	public String comsel="comsel";		private int comsel_c=1;
 	public String copy="copy";			private int copy_c=1;
 	public String del="del";			private int del_c=1;
-	public String dif="dif";			private int dif_c=1;
+	public String difsel="difsel";		private int difsel_c=1;
 	public String elp="elp";			private int elp_c=1;
 	public String grp="grp";			private int grp_c=1;
+	public String igf="igf";			private int igf_c=1;
 	public String imp="imp";			private int imp_c=1;
 	public String intsel="intsel";		private int intsel_c=1;
 	public String mpart="mpart";		private int mpart_c=1;
@@ -86,8 +87,10 @@ class Operations
 	public Model ComplementSelection (Model model, String label, String [] name, int entitydim, boolean add) {return model;}
 	public Model Copy (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add) {return model;}
 	public Model Delete (Model  model, String label, String name, int type, boolean add) {return model;}
+	public Model DifferenceSelection (Model model, String label, String [] name, String [] subtract, int entitydim, boolean add) {return model;}
 	public Model Ellipsoide (Model model, String label, double x1, double y1, double z1, double x2, double y2, double z2, boolean add) {return model;}
 	public Model Group (Model model, String label, String place) {return model;}
+	public Model IgnoreFaces(Model model, String label, String name, boolean add) {return model;}
 	public Model Import (Model model, String label, String stl, boolean formsolid, double tol, boolean add) {return model;}
 	public Model IntersectionSelection (Model model, String label, String [] name, int entitydim, String selshow, boolean add) {return model;}
 	public Model Move (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add) {return model;}
@@ -425,13 +428,15 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.ComplementSelection(model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
 
 	model=op.AdjacentSelection(model, "Remove Details 3", new String[]{op.comsel}, 3, 2, true, true, "on", false);
-	
-	model=op.BallSelection(model, "Remove Details 4", "0", "0", "zmin-cc_thickness", "all", 3, "intersects", "off", false);
-	z.define(op.ballsel,"Current Collector");
-	
-	model=op.AdjacentSelection(model, "Remove Details 5", new String[]{op.ballsel}, 3, 2, false, true, "off", false);
-	z.define(op.adjsel, "Collector Boundaries");
+	tmp=op.adjsel;
 
+	model=op.BallSelection(model, "Remove Details 4", "0", "0", "zmin-cc_thickness", "all", 3, "intersects", "off", false);
+
+	model=op.AdjacentSelection(model, "Remove Details 5", new String[]{op.ballsel}, 3, 2, false, true, "off", false);
+
+	model=op.DifferenceSelection(model, "Remove Details 6",  new String[]{tmp},  new String[]{op.adjsel}, 2, false);
+
+	model=op.IgnoreFaces(model, "Remove Details 7", op.difsel, false);
 
 	// Selection and renaming of the different zones of the system //
 	
