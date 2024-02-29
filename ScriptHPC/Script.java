@@ -300,20 +300,20 @@ public static void main(String[] args) throws IOException
 	MeshFeature problematicFeature = model.component("TestCase").mesh("mesh1").feature(problemFeatures[0]);
 	String [] errors = problematicFeature.errors();
 	
-	for (String tag : errors) {
-		String errorMessage = problematicFeature.problem(tag).message();
-		System.out.println(errorMessage);
-		if (problematicFeature.problem(tag).hasSelection()) {
-		MeshSelection sel = problematicFeature.problem(tag).selection();
-		System.out.println("Selection: " + sel);
-		}
-		// String[] problemDetails = problematicFeature.problem(tag).problems();
-		// for (String tag2 : problemDetails) {
-		// MeshProblemFeature detail = problematicFeature.problem(tag).problem(tag2);
-		// // Recursively analyze subproblems
-		// analyzeProblems(detail);
-		// }
-	}
+	// for (String tag : errors) {
+	// 	String errorMessage = problematicFeature.problem(tag).message();
+	// 	System.out.println(errorMessage);
+	// 	if (problematicFeature.problem(tag).hasSelection()) {
+	// 	MeshSelection sel = problematicFeature.problem(tag).selection();
+	// 	System.out.println("Selection: " + sel);
+	// 	}
+	// 	String[] problemDetails = problematicFeature.problem(tag).problems();
+	// 	for (String tag2 : problemDetails) {
+	// 	MeshProblemFeature detail = problematicFeature.problem(tag).problem(tag2);
+	// 	// Recursively analyze subproblems
+	// 	analyzeProblems(detail);
+	// 	}
+	// }
 
 	// String msg1 = model.component("TestCase").mesh("mesh1").feature("ftet1").problem("error").getString("message"); 
 	// System.out.println(msg1);
