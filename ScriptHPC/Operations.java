@@ -247,7 +247,18 @@ public class Operations
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(intsel);
 		return model;
 	}
-	
+		
+	public double MeasureCalc (Model model, String name, int level, int type)
+	{
+		model.component("TestCase").geom("geom1").measure().selection().init(level);
+		if (type==0)
+			model.component("TestCase").geom("geom1").measure().selection().named(name);
+		else
+			model.component("TestCase").geom("geom1").measure().selection().set(name, type);
+
+		return model.component("TestCase").geom("geom1").measure().getVolume();
+	}	
+
 	public Model Move (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add)
 	{
 		move="move"+String.valueOf(move_c);
@@ -343,15 +354,5 @@ public class Operations
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(uni);
 		return model;
-	}
-	
-	public double VolumeCalc (Model model, String name, int level, int type)
-	{
-		model.component("TestCase").geom("geom1").measure().selection().init(level);
-		if (type==0)
-			model.component("TestCase").geom("geom1").measure().selection().named(name);
-		else
-			model.component("TestCase").geom("geom1").measure().selection().set(name, type);
-		return model.component("TestCase").geom("geom1").measure().getVolume();
 	}
 }

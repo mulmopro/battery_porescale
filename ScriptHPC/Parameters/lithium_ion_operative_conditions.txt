@@ -1,0 +1,4 @@
+C_rate 1[1/h] "Discharge C rate"
+I_C csmax*(socmax-socmin)*F_const*Vp*C_rate "Discharge current"
+cs0 csmax*socinit "Initial lithium concentration in particles"
+cl0 1000[mol/m^3] "Initial lithium concentration in the electrolyte"

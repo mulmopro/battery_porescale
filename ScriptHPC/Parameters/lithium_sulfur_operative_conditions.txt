@@ -1,0 +1,5 @@
+E0 2.6[V] "Initial cell voltage"
+C_rate 0.1 "Discharge C rate"
+Cap 16*(c_S8_ref)*F_const "Theoretical capacity"
+i_1C Cap*Vp/1[h] "1C current"
+i_Crate i_1C*C_rate
