@@ -692,14 +692,6 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
 	
 	// Electrolyte: Diffusion coefficient //
-	table=new String[][]
-	{{"200", "3.9e-10/(1-200*59e-6)"}, 
-	{"500", "4.12e-10/(1-500*59e-6)"}, 
-	{"800", "4e-10/(1-800*59e-6)"}, 
-	{"1000", "3.8e-10/(1-1000*59e-6)"}, 
-	{"1200", "3.50e-10/(1-1200*59e-6)"}, 
-	{"1600", "2.68e-10/(1-1600*59e-6)"}, 
-	{"2000", "1.9e-10/(1-2000*59e-6)"}};
 	T=new String[]
 	{"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
 	"0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", 
@@ -708,16 +700,6 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true);
 
 	// Electrolyte: Electrolyte conductivity //
-	table=new String[][]
-	{{"0", "1e-6"}, 
-	{"200", "0.455"}, 
-	{"500", "0.783"}, 
-	{"800", "0.935"}, 
-	{"1000", "0.95"}, 
-	{"1200", "0.927"}, 
-	{"1600", "0.78"}, 
-	{"2000", "0.60"}, 
-	{"2200", "0.515"}};
 	T=new String[]
 	{"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", "0", 
 	"0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", 
