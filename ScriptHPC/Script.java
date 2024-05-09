@@ -224,6 +224,7 @@ public static void main(String[] args) throws IOException
 	System.out.println("Geometry Construction done");
 
 	if (liion) {
+
 		// Materials //
 		String [][] ExpVoltage=new String[10000][2];
 		String [][] Voltage=new String[100][2];
@@ -274,8 +275,38 @@ public static void main(String[] args) throws IOException
 			D[i][1]=line3[1];
 			i+=1;
 		}
+
+		String [][] D_L=new String[10000][2];
+		String l4="";
+		String diffLFile = "D_L.txt";
+		String filePath9 = currentDir + folder + diffLFile;
+		BufferedReader br4 = new BufferedReader(new FileReader(filePath9));
+		i=0;
+		while((l4=br4.readLine())!=null)
+		{
+			String [] line4=new String[2];
+			line4=l4.split("\t",0);
+			D_L[i][0]=line4[0];
+			D_L[i][1]=line4[1];
+			i+=1;
+		}
+
+		String [][] sigma_L=new String[10000][2];
+		String l5="";
+		String sigmaLFile = "sigma_L.txt";
+		String filePath10 = currentDir + folder + sigmaLFile;
+		BufferedReader br5 = new BufferedReader(new FileReader(filePath10));
+		i=0;
+		while((l5=br5.readLine())!=null)
+		{
+			String [] line4=new String[2];
+			line5=l5.split("\t",0);
+			sigma_L_L[i][0]=line4[0];
+			sigma_L[i][1]=line4[1];
+			i+=1;
+		}
 		
-		model = MaterialsDefinition(model, z, Voltage, D);
+		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L);
 		System.out.println("Materials Definition done");
 
 	}
@@ -288,11 +319,11 @@ public static void main(String[] args) throws IOException
 	model = MeshConstruction(model, z, liion, lis);
 	System.out.println("Mesh Definition set");
 	
-	// Definizione del caso di studio //
+	// Case study  //
 	model = TestStudy(model, time, tol, liion, lis);
 	System.out.println("TestStudy created");
 	
-	// Costruzione della mesh //
+	// Mesh construction //
 	model.component("TestCase").mesh("mesh1").run();
 
 	boolean problem = model.component("TestCase").mesh("mesh1").hasProblems();
@@ -592,7 +623,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	return model;
 }
 	
-public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D) throws IOException {
+public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D, String [][] D_L, String [][] sigma_L) throws IOException {
 
 	Materials mt;
 	mt=new Materials();
@@ -601,47 +632,47 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	String [][] table;
 	boolean default_V=false;	
 
-	// New material: Graphite //
-	model=mt.newMaterial(model, "Graphite", new String[]{"temperature", "concentration"});
-	model=mt.setup(model, "Graphite", "def", 
+	// New material: Electrode //
+	model=mt.newMaterial(model, "Electrode", new String[]{"temperature", "concentration"});
+	model=mt.setup(model, "Electrode", "def", 
 	new String[]{"T_ref", "T2", "csmax", "soc"}, 
 	new String[]{"318[K]", "min(393.15,max(T,223.15))", "31507[mol/m^3]", "c/csmax"}, false);
 	
-	// Graphite: Diffusion coefficient //
+	// Electrode: Diffusion coefficient //
 	T=new String[]
 	{"D_int1(soc)", "0", "0",
 	 "0", "D_int1(soc)", "0", 
 	 "0", "0", "D_int1(soc)"};
-	model=mt.setup(model, "Graphite", "def", new String[]{"diffusion"}, T, true);
-	model=mt.newFunc(model, "Graphite", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
+	model=mt.setup(model, "Electrode", "def", new String[]{"diffusion"}, T, true);
+	model=mt.newFunc(model, "Electrode", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
 
-	// Graphite: Electrical conductivity //
+	// Electrode: Electrical conductivity //
 	T=new String[]
-	{"100[S/m]", "0", "0",
-	 "0", "100[S/m]", "0",
-	  "0", "0", "100[S/m]"};
-	model=mt.setup(model, "Graphite", "def", new String[]{"electricconductivity"}, T, true);
+	{"sigma_S", "0", "0",
+	 "0", "sigma_S", "0",
+	  "0", "0", "sigma_S"};
+	model=mt.setup(model, "Electrode", "def", new String[]{"electricconductivity"}, T, true);
 
-	// Graphite: Equilibrium potential //
-	model=mt.newProperty(model, "Graphite", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
-	model=mt.setup(model, "Graphite", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "soc", "dEeqdT"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax", "0"}, false);
-	model=mt.newFunc(model, "Graphite", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
+	// Electrode: Equilibrium potential //
+	model=mt.newProperty(model, "Electrode", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
+	model=mt.setup(model, "Electrode", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "soc", "dEeqdT"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax", "0"}, false);
+	model=mt.newFunc(model, "Electrode", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
 	
-	// Graphite: SOC definition //
-	model=mt.newProperty(model, "Graphite", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
-	model=mt.setup(model, "Graphite", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"0.98", "0.0"}, false);
+	// Electrode: SOC definition //
+	model=mt.newProperty(model, "Electrode", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
+	model=mt.setup(model, "Electrode", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"0.98", "0.0"}, false);
 
-	// Graphite: Geometry selection //
-	model=mt.geomSelection(model, "Graphite", "geom1_"+z.select("Electrode"));
+	// Electrode: Geometry selection //
+	model=mt.geomSelection(model, "Electrode", "geom1_"+z.select("Electrode"));
 
 	// New material: Lithium //
 	model=mt.newMaterial(model, "Lithium", new String[]{"none"});
 	
 	// Lithium: Electrical conductivity //
 	T=new String[]
-	{"1/(92.8[n\u03a9*m])", "0", "0", 
-	"0", "1/(92.8[n\u03a9*m])", "0", 
-	"0", "0", "1/(92.8[n\u03a9*m])"};
+	{"1/rho", "0", "0", 
+	"0", "1/rho", "0", 
+	"0", "0", "1/rho"};
 	model=mt.setup(model, "Lithium", "def", new String[]{"electricconductivity"}, T, true);
 	
 	// Lithium: Equilibrium potential //
@@ -673,7 +704,7 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	{"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
 	"0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", 
 	"0", "0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))"};
-	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", table, "piecewisecubic", "linear", "m^2/s", "");
+	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", D_L, "piecewisecubic", "linear", "m^2/s", "");
 	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true);
 
 	// Electrolyte: Electrolyte conductivity //
@@ -692,7 +723,7 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	"0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", 
 	"0", "0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))"};
 	model=mt.newProperty(model, "Electrolyte", "ElectrolyteConductivity", "Electrolyte conductivity", new String[]{"temperature", "concentration"});
-	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", table, "piecewisecubic", "linear", "S/m", "");
+	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", sigma_L, "piecewisecubic", "linear", "S/m", "");
 	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", new String[]{"sigmal"}, T, true);
 	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", 
 	new String[]{"T_ref2", "T3"},
@@ -757,7 +788,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean liion, boolea
 			model.component("TestCase").physics("liion").feature("pcb1").selection().named("geom1_"+z.select("Electrolyte"));
 			model.component("TestCase").physics("liion").feature("pcb1").set("ElectrolyteMaterial", "mat3");
 			model.component("TestCase").physics("liion").feature("pcb1").set("sigma_mat", "userdef");
-			model.component("TestCase").physics("liion").feature("pcb1").set("sigma", new String[]{"sigma_s", "0", "0", "0", "sigma_s", "0", "0", "0", "sigma_s"});
+			model.component("TestCase").physics("liion").feature("pcb1").set("sigma", new String[]{"sigma_cbd", "0", "0", "0", "sigma_cbd", "0", "0", "0", "sigma_cbd"});
 			model.component("TestCase").physics("liion").feature("pcb1").set("epss", "eps_s_b");
 			model.component("TestCase").physics("liion").feature("pcb1").set("epsl", "eps_l_b");
 			model.component("TestCase").physics("liion").feature("pcb1").set("ElectricCorrModel", "NoCorr");
