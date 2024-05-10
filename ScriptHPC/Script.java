@@ -287,25 +287,35 @@ public static void main(String[] args) throws IOException
 		i+=1;
 	}
 
-	System.out.println("5");
+	String CsMax="";
+	String l6="";
+	String filePath11 = currentDir + folder + paramFile;
+	BufferedReader br6 = new BufferedReader(new FileReader(filePath11));
+	while((l6=br6.readLine())!=null) {
+		if (l6.contains("csmax")) {
+			String [] line6 = l6.split(" ",0);
+			CsMax = line6[1];
+		}
+	}
 
-	model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L);
+	// Materials //
+	model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
 	System.out.println("Materials Definition done");
 
 	// Physics //
 	model = PhysicsDefinition(model, z, cathode);
 	System.out.println("Physics Definition done");
 	
-	// // Mesh //
-	// model = MeshConstruction(model, z);
-	// System.out.println("Mesh Definition set");
+	// Mesh //
+	model = MeshConstruction(model, z);
+	System.out.println("Mesh Definition set");
 	
-	// // Case study  //
-	// model = TestStudy(model, time, tol);
-	// System.out.println("TestStudy created");
+	// Case study  //
+	model = TestStudy(model, time, tol);
+	System.out.println("TestStudy created");
 	
-	// // Mesh construction //
-	// model.component("TestCase").mesh("mesh1").run();
+	// Mesh construction //
+	model.component("TestCase").mesh("mesh1").run();
 
 	// boolean problem = model.component("TestCase").mesh("mesh1").hasProblems();
 	// String [] problemFeatures = model.component("TestCase").mesh("mesh1").problems();
@@ -589,7 +599,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	return model;
 }
 	
-public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D, String [][] D_L, String [][] sigma_L, boolean diffusion) throws IOException {
+public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D, String [][] D_L, String [][] sigma_L, String CsMax, boolean diffusion) throws IOException {
 
 	Materials mt;
 	mt=new Materials();
@@ -602,10 +612,10 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	model=mt.newMaterial(model, "Electrode", new String[]{"temperature", "concentration"});
 	model=mt.setup(model, "Electrode", "def", 
 	new String[]{"T_ref", "T2", "csmax", "soc"}, 
-	new String[]{"298[K]", "min(393.15,max(T,223.15))", "csmax", "c/csmax"}, false);
+	new String[]{"298[K]", "min(393.15,max(T,223.15))", CsMax, "c/csmax"}, false);
 	
 	// Electrode: Diffusion coefficient //
-	if diffusion {
+	if (diffusion) {
 		T=new String[]
 		{"D_int1(soc)", "0", "0",
 		"0", "D_int1(soc)", "0", 
