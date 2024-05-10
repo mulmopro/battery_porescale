@@ -132,7 +132,19 @@ public static void main(String[] args) throws IOException
 	int i=0;
 	int k=0;
 
-	System.out.println("Creating a model for Lithium-Ion batteries");
+	boolean cathode = false;
+	boolean anode = true;
+	boolean diffusion = true;
+
+	if ((cathode && anode) || (!cathode && !anode)) {
+		System.out.println("Choose between cathode or anode simulation!");
+		return;
+	}
+
+	if (cathode)
+		System.out.println("Creating a model for cathode of Lithium-Ion batteries");
+	if (anode)
+		System.out.println("Creating a model for anode of Lithium-Sulfur batteries");
 
 	String currentDir = new File(".").getAbsolutePath();
 	// Remove the trailing '.' character
@@ -168,9 +180,9 @@ public static void main(String[] args) throws IOException
 	String condFile="";
 	String geomFile="";
 
-	paramFile = "lithium_ion_chemico_physical_parameters.txt";
-	condFile = "lithium_ion_operative_conditions.txt";
-	geomFile = "lithium_ion_geometric_details.txt";
+	paramFile = "chemico_physical_parameters.txt";
+	condFile = "operative_conditions.txt";
+	geomFile = "geometric_details.txt";
 
 	model = ParameterValues(model, currentDir, folder, paramFile, condFile, geomFile);
 	System.out.println("Parameter Values loaded");
@@ -181,7 +193,7 @@ public static void main(String[] args) throws IOException
 	String l1="";
 	String partFile="";
 
-	partFile = "geometry_liion.txt";
+	partFile = "geometry.txt";
 
 	String filePath6 = currentDir + folder + partFile;
 	BufferedReader br1 = new BufferedReader(new FileReader(filePath6));
@@ -213,7 +225,7 @@ public static void main(String[] args) throws IOException
 		ExpVoltage[i][1]=line2[1];
 		i+=1;
 	}
-	
+
 	i=1;k=1;
 	Voltage[0][0]=ExpVoltage[0][0];
 	Voltage[0][1]=ExpVoltage[0][1];
@@ -229,7 +241,7 @@ public static void main(String[] args) throws IOException
 	}while(dt<1.0);
 	Voltage[99][0]=ExpVoltage[2472][0];
 	Voltage[99][1]=ExpVoltage[2472][1];
-	
+
 	String [][] D=new String[10000][2];
 	String l3="";
 	String diffFile = "D.txt";
@@ -254,7 +266,7 @@ public static void main(String[] args) throws IOException
 	while((l4=br4.readLine())!=null)
 	{
 		String [] line4=new String[2];
-		line4=l4.split("\t",0);
+		line4=l4.split(" ",0);
 		D_L[i][0]=line4[0];
 		D_L[i][1]=line4[1];
 		i+=1;
@@ -269,34 +281,36 @@ public static void main(String[] args) throws IOException
 	while((l5=br5.readLine())!=null)
 	{
 		String [] line5=new String[2];
-		line5=l5.split("\t",0);
+		line5=l5.split(" ",0);
 		sigma_L[i][0]=line5[0];
 		sigma_L[i][1]=line5[1];
 		i+=1;
 	}
-	
+
+	System.out.println("5");
+
 	model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L);
 	System.out.println("Materials Definition done");
 
 	// Physics //
-	model = PhysicsDefinition(model, z);
+	model = PhysicsDefinition(model, z, cathode);
 	System.out.println("Physics Definition done");
 	
-	// Mesh //
-	model = MeshConstruction(model, z);
-	System.out.println("Mesh Definition set");
+	// // Mesh //
+	// model = MeshConstruction(model, z);
+	// System.out.println("Mesh Definition set");
 	
-	// Case study  //
-	model = TestStudy(model, time, tol);
-	System.out.println("TestStudy created");
+	// // Case study  //
+	// model = TestStudy(model, time, tol);
+	// System.out.println("TestStudy created");
 	
-	// Mesh construction //
-	model.component("TestCase").mesh("mesh1").run();
+	// // Mesh construction //
+	// model.component("TestCase").mesh("mesh1").run();
 
-	boolean problem = model.component("TestCase").mesh("mesh1").hasProblems();
-	String [] problemFeatures = model.component("TestCase").mesh("mesh1").problems();
-	MeshFeature problematicFeature = model.component("TestCase").mesh("mesh1").feature(problemFeatures[0]);
-	String [] errors = problematicFeature.errors();
+	// boolean problem = model.component("TestCase").mesh("mesh1").hasProblems();
+	// String [] problemFeatures = model.component("TestCase").mesh("mesh1").problems();
+	// MeshFeature problematicFeature = model.component("TestCase").mesh("mesh1").feature(problemFeatures[0]);
+	// String [] errors = problematicFeature.errors();
 	
 	// for (String tag : errors) {
 	// 	String errorMessage = problematicFeature.problem(tag).message();
@@ -575,7 +589,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	return model;
 }
 	
-public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D, String [][] D_L, String [][] sigma_L) throws IOException {
+public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage, String [][] D, String [][] D_L, String [][] sigma_L, boolean diffusion) throws IOException {
 
 	Materials mt;
 	mt=new Materials();
@@ -588,15 +602,23 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	model=mt.newMaterial(model, "Electrode", new String[]{"temperature", "concentration"});
 	model=mt.setup(model, "Electrode", "def", 
 	new String[]{"T_ref", "T2", "csmax", "soc"}, 
-	new String[]{"318[K]", "min(393.15,max(T,223.15))", "31507[mol/m^3]", "c/csmax"}, false);
+	new String[]{"298[K]", "min(393.15,max(T,223.15))", "csmax", "c/csmax"}, false);
 	
 	// Electrode: Diffusion coefficient //
-	T=new String[]
-	{"D_int1(soc)", "0", "0",
-	 "0", "D_int1(soc)", "0", 
-	 "0", "0", "D_int1(soc)"};
-	model=mt.setup(model, "Electrode", "def", new String[]{"diffusion"}, T, true);
-	model=mt.newFunc(model, "Electrode", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
+	if diffusion {
+		T=new String[]
+		{"D_int1(soc)", "0", "0",
+		"0", "D_int1(soc)", "0", 
+		"0", "0", "D_int1(soc)"};
+		model=mt.setup(model, "Electrode", "def", new String[]{"diffusion"}, T, true);
+		model=mt.newFunc(model, "Electrode", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
+	} else {
+		T=new String[]
+		{"D_iso", "0", "0",
+		"0", "D_iso", "0", 
+		"0", "0", "D_iso"};
+		model=mt.setup(model, "Electrode", "def", new String[]{"diffusion"}, T, true);
+	}
 
 	// Electrode: Electrical conductivity //
 	T=new String[]
@@ -607,12 +629,12 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 
 	// Electrode: Equilibrium potential //
 	model=mt.newProperty(model, "Electrode", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
-	model=mt.setup(model, "Electrode", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "soc", "dEeqdT"}, new String[]{"Eeq_int1(soc)", "31507[mol/m^3]", "c/csmax", "0"}, false);
+	model=mt.setup(model, "Electrode", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "soc", "dEeqdT"}, new String[]{"Eeq_int1(soc)", "csmax", "c/csmax", "0"}, false);
 	model=mt.newFunc(model, "Electrode", "ElectrodePotential", "Eeq_int1", Voltage, "piecewisecubic", "linear", "V", "");
 	
 	// Electrode: SOC definition //
 	model=mt.newProperty(model, "Electrode", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
-	model=mt.setup(model, "Electrode", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"0.98", "0.0"}, false);
+	model=mt.setup(model, "Electrode", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"socmax", "socmin"}, false);
 
 	// Electrode: Geometry selection //
 	model=mt.geomSelection(model, "Electrode", "geom1_"+z.select("Electrode"));
@@ -645,17 +667,17 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	
 	// Electrolyte: Diffusion coefficient //
 	T=new String[]
-	{"DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", "0", 
-	"0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))", "0", 
-	"0", "0", "DL_int1(c/1[mol/m^3])*exp(16500/8.314*(1/(T_ref/1[K])-1/(T2/1[K])))"};
+	{"DL_int1(c/1[mol/m^3])", "0", "0", 
+	"0", "DL_int1(c/1[mol/m^3])", "0", 
+	"0", "0", "DL_int1(c/1[mol/m^3])"};
 	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", D_L, "piecewisecubic", "linear", "m^2/s", "");
 	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true);
 
 	// Electrolyte: Electrolyte conductivity //
 	T=new String[]
-	{"sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", "0", 
-	"0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))", "0", 
-	"0", "0", "sigmal_int1(c/1[mol/m^3])*exp(4000/8.314*(1/(T_ref2/1[K])-1/(T3/1[K])))"};
+	{"sigmal_int1(c/1[mol/m^3])", "0", "0", 
+	"0", "sigmal_int1(c/1[mol/m^3])", "0", 
+	"0", "0", "sigmal_int1(c/1[mol/m^3])"};
 	model=mt.newProperty(model, "Electrolyte", "ElectrolyteConductivity", "Electrolyte conductivity", new String[]{"temperature", "concentration"});
 	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", sigma_L, "piecewisecubic", "linear", "S/m", "");
 	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", new String[]{"sigmal"}, T, true);
@@ -675,10 +697,8 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	return model;
 }
 
-public static Model PhysicsDefinition(Model model, Zone z) {
+public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	
-	boolean CBD=false;
-
 	// Lithium Ion Battery Model //
 	model.component("TestCase").physics().create("liion", "LithiumIonBatteryMPH", "geom1");
 	model.component("TestCase").physics("liion").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
@@ -713,7 +733,7 @@ public static Model PhysicsDefinition(Model model, Zone z) {
 	model.component("TestCase").physics("liion").feature("ec1").label("Electrode-CC");
 	
 	// 
-	if(CBD)
+	if(cathode)
 	{
 		// Carbon Binder //
 		model.component("TestCase").physics("liion").create("pcb1", "PorousConductiveBinder", 3);
