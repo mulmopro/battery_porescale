@@ -732,7 +732,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").create("el1", "Electrode", 3);
 	model.component("TestCase").physics("liion").feature("el1").selection().named("geom1_"+z.select("Electrode"));
 	model.component("TestCase").physics("liion").feature("el1").set("sigma_mat", "userdef");
-	model.component("TestCase").physics("liion").feature("el1").set("sigma", new int[]{100, 0, 0, 0, 100, 0, 0, 0, 100});
+	model.component("TestCase").physics("liion").feature("el1").set("sigma", new int[]{"sigma_S", 0, 0, 0, "sigma_S", 0, 0, 0, "sigma_S"});
 	model.component("TestCase").physics("liion").feature("el1").label("Electrode");
 	
 	// Electrode Current Collector interface //
