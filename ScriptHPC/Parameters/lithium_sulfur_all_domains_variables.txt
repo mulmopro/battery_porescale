@@ -1,2 +1,0 @@
-R_Li2S_s k_Li2S_s*((Li_1p)^2*S_2m-Ksp_Li2S_s)*Vp/Ap "Reaction rate, Li2S(s) precipitation"
-R_S8_s k_S8_s*(S8-Ksp_S8_s)*Vp/Ap "Reaction rate, S8(s) precipitation"

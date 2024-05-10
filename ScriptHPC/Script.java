@@ -132,18 +132,7 @@ public static void main(String[] args) throws IOException
 	int i=0;
 	int k=0;
 
-	boolean liion = false;
-	boolean lis = true;
-
-	if ((liion && lis) || (!liion && !lis)) {
-		System.out.println("Select one chemistry!");
-		return;
-	}
-
-	if (liion)
-		System.out.println("Creating a model for Lithium-Ion batteries");
-	if (lis)
-		System.out.println("Creating a model for Lithium-Sulfur batteries");
+	System.out.println("Creating a model for Lithium-Ion batteries");
 
 	String currentDir = new File(".").getAbsolutePath();
 	// Remove the trailing '.' character
@@ -178,40 +167,22 @@ public static void main(String[] args) throws IOException
 	String paramFile="";
 	String condFile="";
 	String geomFile="";
-	if (liion) {
-		paramFile = "lithium_ion_chemico_physical_parameters.txt";
-		condFile = "lithium_ion_operative_conditions.txt";
-		geomFile = "lithium_ion_geometric_details.txt";
-	}
 
-	if (lis) {
-		paramFile = "lithium_sulfur_chemico_physical_parameters.txt";
-		condFile = "lithium_sulfur_operative_conditions.txt";
-		geomFile = "lithium_sulfur_geometric_details.txt";
-	}
+	paramFile = "lithium_ion_chemico_physical_parameters.txt";
+	condFile = "lithium_ion_operative_conditions.txt";
+	geomFile = "lithium_ion_geometric_details.txt";
 
 	model = ParameterValues(model, currentDir, folder, paramFile, condFile, geomFile);
 	System.out.println("Parameter Values loaded");
-
-	// All Domain Variables //
-	if (lis) {
-		String varFile = "lithium_sulfur_all_domains_variables.txt";
-		String filePath2 = currentDir + folder + varFile;
-		model.component("TestCase").variable().create("var1");
-		model.component("TestCase").variable("var1").loadFile(filePath2);
-	}
 
 	// Geometry //
 	ParticlesGeometry pg;
 	pg = new ParticlesGeometry();
 	String l1="";
 	String partFile="";
-	if (liion) {
-		partFile = "geometry_liion.txt";
-	}
-	if (lis) {
-		partFile = "geometry_lis.txt";
-	}
+
+	partFile = "geometry_liion.txt";
+
 	String filePath6 = currentDir + folder + partFile;
 	BufferedReader br1 = new BufferedReader(new FileReader(filePath6));
 	do{
@@ -220,107 +191,103 @@ public static void main(String[] args) throws IOException
 		pg.Read(line);
 		i+=1;
 	}while(l1.equals("EOF")==false);
-	model = GeometryConstruction(model, z, pg, tol, liion, lis);
+	model = GeometryConstruction(model, z, pg, tol);
 	System.out.println("Geometry Construction done");
 
-	if (liion) {
-
-		// Materials //
-		String [][] ExpVoltage=new String[10000][2];
-		String [][] Voltage=new String[100][2];
-		double dt=0.01;
-		
-		String l2="";
-		String eeqFile = "C20.txt";
-		String filePath7 = currentDir + folder + eeqFile;
-		BufferedReader br2 = new BufferedReader(new FileReader(filePath7));
-		
-		i=0;
-		while((l2=br2.readLine())!=null)
+	// Materials //
+	String [][] ExpVoltage=new String[10000][2];
+	String [][] Voltage=new String[100][2];
+	double dt=0.01;
+	
+	String l2="";
+	String eeqFile = "C20.txt";
+	String filePath7 = currentDir + folder + eeqFile;
+	BufferedReader br2 = new BufferedReader(new FileReader(filePath7));
+	
+	i=0;
+	while((l2=br2.readLine())!=null)
+	{
+		String [] line2=new String[2];
+		line2=l2.split("\t",0);
+		ExpVoltage[i][0]=line2[0];
+		ExpVoltage[i][1]=line2[1];
+		i+=1;
+	}
+	
+	i=1;k=1;
+	Voltage[0][0]=ExpVoltage[0][0];
+	Voltage[0][1]=ExpVoltage[0][1];
+	do{
+		if(dt>Double.parseDouble(ExpVoltage[i][0]) && dt<Double.parseDouble(ExpVoltage[i+1][0]))
 		{
-			String [] line2=new String[2];
-			line2=l2.split("\t",0);
-			ExpVoltage[i][0]=line2[0];
-			ExpVoltage[i][1]=line2[1];
-			i+=1;
+			Voltage[k][0]=ExpVoltage[i][0];
+			Voltage[k][1]=ExpVoltage[i][1];
+			dt=dt+0.01;
+			k+=1;
 		}
-		
-		i=1;k=1;
-		Voltage[0][0]=ExpVoltage[0][0];
-		Voltage[0][1]=ExpVoltage[0][1];
-		do{
-			if(dt>Double.parseDouble(ExpVoltage[i][0]) && dt<Double.parseDouble(ExpVoltage[i+1][0]))
-			{
-				Voltage[k][0]=ExpVoltage[i][0];
-				Voltage[k][1]=ExpVoltage[i][1];
-				dt=dt+0.01;
-				k+=1;
-			}
-			i+=1;
-		}while(dt<1.0);
-		Voltage[99][0]=ExpVoltage[2472][0];
-		Voltage[99][1]=ExpVoltage[2472][1];
-		
-		String [][] D=new String[10000][2];
-		String l3="";
-		String diffFile = "D.txt";
-		String filePath8 = currentDir + folder + diffFile;
-		BufferedReader br3 = new BufferedReader(new FileReader(filePath8));
-		i=0;
-		while((l3=br3.readLine())!=null)
-		{
-			String [] line3=new String[2];
-			line3=l3.split("\t",0);
-			D[i][0]=line3[0];
-			D[i][1]=line3[1];
-			i+=1;
-		}
-
-		String [][] D_L=new String[10000][2];
-		String l4="";
-		String diffLFile = "D_L.txt";
-		String filePath9 = currentDir + folder + diffLFile;
-		BufferedReader br4 = new BufferedReader(new FileReader(filePath9));
-		i=0;
-		while((l4=br4.readLine())!=null)
-		{
-			String [] line4=new String[2];
-			line4=l4.split("\t",0);
-			D_L[i][0]=line4[0];
-			D_L[i][1]=line4[1];
-			i+=1;
-		}
-
-		String [][] sigma_L=new String[10000][2];
-		String l5="";
-		String sigmaLFile = "sigma_L.txt";
-		String filePath10 = currentDir + folder + sigmaLFile;
-		BufferedReader br5 = new BufferedReader(new FileReader(filePath10));
-		i=0;
-		while((l5=br5.readLine())!=null)
-		{
-			String [] line4=new String[2];
-			line5=l5.split("\t",0);
-			sigma_L_L[i][0]=line4[0];
-			sigma_L[i][1]=line4[1];
-			i+=1;
-		}
-		
-		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L);
-		System.out.println("Materials Definition done");
-
+		i+=1;
+	}while(dt<1.0);
+	Voltage[99][0]=ExpVoltage[2472][0];
+	Voltage[99][1]=ExpVoltage[2472][1];
+	
+	String [][] D=new String[10000][2];
+	String l3="";
+	String diffFile = "D.txt";
+	String filePath8 = currentDir + folder + diffFile;
+	BufferedReader br3 = new BufferedReader(new FileReader(filePath8));
+	i=0;
+	while((l3=br3.readLine())!=null)
+	{
+		String [] line3=new String[2];
+		line3=l3.split("\t",0);
+		D[i][0]=line3[0];
+		D[i][1]=line3[1];
+		i+=1;
 	}
 
+	String [][] D_L=new String[10000][2];
+	String l4="";
+	String diffLFile = "D_L.txt";
+	String filePath9 = currentDir + folder + diffLFile;
+	BufferedReader br4 = new BufferedReader(new FileReader(filePath9));
+	i=0;
+	while((l4=br4.readLine())!=null)
+	{
+		String [] line4=new String[2];
+		line4=l4.split("\t",0);
+		D_L[i][0]=line4[0];
+		D_L[i][1]=line4[1];
+		i+=1;
+	}
+
+	String [][] sigma_L=new String[10000][2];
+	String l5="";
+	String sigmaLFile = "sigma_L.txt";
+	String filePath10 = currentDir + folder + sigmaLFile;
+	BufferedReader br5 = new BufferedReader(new FileReader(filePath10));
+	i=0;
+	while((l5=br5.readLine())!=null)
+	{
+		String [] line5=new String[2];
+		line5=l5.split("\t",0);
+		sigma_L[i][0]=line5[0];
+		sigma_L[i][1]=line5[1];
+		i+=1;
+	}
+	
+	model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L);
+	System.out.println("Materials Definition done");
+
 	// Physics //
-	model = PhysicsDefinition(model, z, liion, lis);
+	model = PhysicsDefinition(model, z);
 	System.out.println("Physics Definition done");
 	
 	// Mesh //
-	model = MeshConstruction(model, z, liion, lis);
+	model = MeshConstruction(model, z);
 	System.out.println("Mesh Definition set");
 	
 	// Case study  //
-	model = TestStudy(model, time, tol, liion, lis);
+	model = TestStudy(model, time, tol);
 	System.out.println("TestStudy created");
 	
 	// Mesh construction //
@@ -385,7 +352,7 @@ public static Model ParameterValues(Model model, String currentDir, String folde
 	return model;
 }
 
-public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry pg, Tolerance tol, boolean liion, boolean lis) {
+public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry pg, Tolerance tol) {
 		
 	int i=1;
 	int b=0;
@@ -452,20 +419,15 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 		if (pg.z_pos(i)<electrode_height)
 		{
 			// Creation of the particle //
-			if (liion)
-				model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(i+1), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
-			if (lis)
-				model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(i+1), (pg.x_dim(i)*1.05), (pg.y_dim(i)*1.05), (pg.z_dim(i)*1.05), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
+			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(i+1), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
 				
 			// Selection and renaming of the particle //
 			model=op.Selection(model, "Particle "+String.valueOf(i+1), op.elp, "off", true);
 			
 			// Rotation of the particle //
-			if (liion) {
-				model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"x", op.sel, "x", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.x_rot(i), true);
-				model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"y", op.sel, "y", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.y_rot(i), true);
-				model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"z", op.sel, "z", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.z_rot(i), true);
-			}
+			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"x", op.sel, "x", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.x_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"y", op.sel, "y", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.y_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"z", op.sel, "z", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.z_rot(i), true);
 		}
 	}
 	
@@ -599,14 +561,8 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	z.define(op.intsel, "Electrode Current Collector");
 	
 	// Half Cell //
-	if (liion) {
-		model=op.ComplementSelection(model, "Lithium-Ion Half Cell", new String[]{z.select("Current Collector")}, 3, false);
-		z.define(op.comsel, "Lithium-Ion Half Cell");
-	}
-	if (lis) {
-		model=op.ComplementSelection(model, "Lithium-Sulfur Half Cell", new String[]{z.select("Current Collector")}, 3, false);
-		z.define(op.comsel, "Lithium-Sulfur Half Cell");
-	}
+	model=op.ComplementSelection(model, "Lithium-Ion Half Cell", new String[]{z.select("Current Collector")}, 3, false);
+	z.define(op.comsel, "Lithium-Ion Half Cell");
 	
 	// Electrolyte and Separator //
 	model=op.ComplementSelection(model, "Electrolyte Separator", new String[]{z.select("Current Collector"), z.select("Electrode")}, 3, false);
@@ -615,10 +571,6 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	// Measurement of the total Electrode volume and surface //
 	volume_block=op.MeasureCalc(model, z.select("Electrode"), 3, 0);
 	model.param("par3").set("Vp",	String.valueOf(volume_block)+" [m^3]", "Total Electrode Volume"); 
-	if (lis) {
-		area_block=op.MeasureCalc(model, z.select("Electrode Surface"), 2, 0);
-		model.param("par3").set("Ap",	String.valueOf(area_block)+" [m^2]", "Total Electrode Surface"); 
-	}
 
 	return model;
 }
@@ -723,234 +675,85 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 	return model;
 }
 
-public static Model PhysicsDefinition(Model model, Zone z, boolean liion, boolean lis) {
+public static Model PhysicsDefinition(Model model, Zone z) {
 	
-	if (liion) {
+	boolean CBD=false;
 
-		boolean CBD=false;
+	// Lithium Ion Battery Model //
+	model.component("TestCase").physics().create("liion", "LithiumIonBatteryMPH", "geom1");
+	model.component("TestCase").physics("liion").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
+	model.component("TestCase").physics("liion").feature("init1").set("phis", "mat1.elpot.Eeq_int1(cs0/csmax)");
+	model.component("TestCase").physics("liion").feature("init1").set("cl",   "cl0");
+	model.component("TestCase").physics("liion").label("Lithium-Ion Half Cell");
+
+	// Lithium transport into the electrode //
+	model.component("TestCase").physics().create("tds", "DilutedSpecies", new String[][]{{"c"}});
+	model.component("TestCase").physics("tds").selection().named("geom1_"+z.select("Electrode"));
+	model.component("TestCase").physics("tds").feature("init1").setIndex("initc", "cs0", 0);
+	model.component("TestCase").physics("tds").prop("TransportMechanism").set("Convection", false);
+	model.component("TestCase").physics("tds").create("eeic1", "ElectrodeElectrolyteInterfaceCoupling", 2);
+	model.component("TestCase").physics("tds").feature("eeic1").selection().named("geom1_"+z.select("Electrode Surface"));
+	model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").setIndex("Vib", 1, 0);
+	model.component("TestCase").physics("tds").feature("cdm1").set("DiffusionMaterialList", "mat1");
+	model.component("TestCase").physics("tds").feature("cdm1").set("D_c_mat", "def");
+	model.component("TestCase").physics("tds").label("Lithium in Electrode");
+
+	// Electrode //
+	model.component("TestCase").physics("liion").create("el1", "Electrode", 3);
+	model.component("TestCase").physics("liion").feature("el1").selection().named("geom1_"+z.select("Electrode"));
+	model.component("TestCase").physics("liion").feature("el1").set("sigma_mat", "userdef");
+	model.component("TestCase").physics("liion").feature("el1").set("sigma", new int[]{100, 0, 0, 0, 100, 0, 0, 0, 100});
+	model.component("TestCase").physics("liion").feature("el1").label("Electrode");
 	
-		// Lithium Ion Battery Model //
-		model.component("TestCase").physics().create("liion", "LithiumIonBatteryMPH", "geom1");
-		model.component("TestCase").physics("liion").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
-		model.component("TestCase").physics("liion").feature("init1").set("phis", "mat1.elpot.Eeq_int1(cs0/csmax)");
-		model.component("TestCase").physics("liion").feature("init1").set("cl",   "cl0");
-		model.component("TestCase").physics("liion").label("Lithium-Ion Half Cell");
-
-		// Lithium transport into the electrode //
-		model.component("TestCase").physics().create("tds", "DilutedSpecies", new String[][]{{"c"}});
-		model.component("TestCase").physics("tds").selection().named("geom1_"+z.select("Electrode"));
-		model.component("TestCase").physics("tds").feature("init1").setIndex("initc", "cs0", 0);
-		model.component("TestCase").physics("tds").prop("TransportMechanism").set("Convection", false);
-		model.component("TestCase").physics("tds").create("eeic1", "ElectrodeElectrolyteInterfaceCoupling", 2);
-		model.component("TestCase").physics("tds").feature("eeic1").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").setIndex("Vib", 1, 0);
-		model.component("TestCase").physics("tds").feature("cdm1").set("DiffusionMaterialList", "mat1");
-		model.component("TestCase").physics("tds").feature("cdm1").set("D_c_mat", "def");
-		model.component("TestCase").physics("tds").label("Lithium in Electrode");
-
-		// Electrode //
-		model.component("TestCase").physics("liion").create("el1", "Electrode", 3);
-		model.component("TestCase").physics("liion").feature("el1").selection().named("geom1_"+z.select("Electrode"));
-		model.component("TestCase").physics("liion").feature("el1").set("sigma_mat", "userdef");
-		model.component("TestCase").physics("liion").feature("el1").set("sigma", new int[]{100, 0, 0, 0, 100, 0, 0, 0, 100});
-		model.component("TestCase").physics("liion").feature("el1").label("Electrode");
-		
-		// Electrode Current Collector interface //
-		model.component("TestCase").physics("liion").create("ec1", "ElectrodeCurrent", 2);
-		model.component("TestCase").physics("liion").feature("ec1").selection().named("geom1_"+z.select("Electrode Current Collector"));
-		model.component("TestCase").physics("liion").feature("ec1").set("Its", "-I_C");
-		model.component("TestCase").physics("liion").feature("ec1").set("phis0init", "mat1.elpot.Eeq_int1(cs0/csmax)");
-		model.component("TestCase").physics("liion").feature("ec1").label("Electrode-CC");
-		
-		// 
-		if(CBD)
-		{
-			// Carbon Binder //
-			model.component("TestCase").physics("liion").create("pcb1", "PorousConductiveBinder", 3);
-			model.component("TestCase").physics("liion").feature("pcb1").selection().named("geom1_"+z.select("Electrolyte"));
-			model.component("TestCase").physics("liion").feature("pcb1").set("ElectrolyteMaterial", "mat3");
-			model.component("TestCase").physics("liion").feature("pcb1").set("sigma_mat", "userdef");
-			model.component("TestCase").physics("liion").feature("pcb1").set("sigma", new String[]{"sigma_cbd", "0", "0", "0", "sigma_cbd", "0", "0", "0", "sigma_cbd"});
-			model.component("TestCase").physics("liion").feature("pcb1").set("epss", "eps_s_b");
-			model.component("TestCase").physics("liion").feature("pcb1").set("epsl", "eps_l_b");
-			model.component("TestCase").physics("liion").feature("pcb1").set("ElectricCorrModel", "NoCorr");
-			model.component("TestCase").physics("liion").feature("pcb1").label("Electrolyte + CBD");
-		}
-		
-		// Electrode-Electrolyte interface //
-		model.component("TestCase").physics("liion").create("bei1", "InternalElectrodeSurface", 2);
-		model.component("TestCase").physics("liion").feature("bei1").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("minput_concentration", "c");
-		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("MaterialOption", "mat1");
-		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
-		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_Graphite [A/m^2]");
-		model.component("TestCase").physics("liion").feature("bei1").label("Electrode/Electrolyte Interface");
-
-		// Separator //
-		model.component("TestCase").physics("liion").create("sep1", "Separator", 3);
-		model.component("TestCase").physics("liion").feature("sep1").selection().named("geom1_"+z.select("Separator"));
-		model.component("TestCase").physics("liion").feature("sep1").set("ElectrolyteMaterial", "mat3");
-		model.component("TestCase").physics("liion").feature("sep1").label("Separator");
-
-		// Lithium electrode //
-		model.component("TestCase").physics("liion").create("es1", "ElectrodeSurface", 2);
-		model.component("TestCase").physics("liion").feature("es1").selection().named("geom1_"+z.select("Lithium Foil"));
-		model.component("TestCase").physics("liion").feature("es1").feature("er1").set("i0_ref", "i0_ref_Li");
-		model.component("TestCase").physics("liion").feature("es1").label("Lithium Foil");
-
-		model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").set("iloc_src", "root.TestCase.liion.bei1.er1.iloc");
+	// Electrode Current Collector interface //
+	model.component("TestCase").physics("liion").create("ec1", "ElectrodeCurrent", 2);
+	model.component("TestCase").physics("liion").feature("ec1").selection().named("geom1_"+z.select("Electrode Current Collector"));
+	model.component("TestCase").physics("liion").feature("ec1").set("Its", "-I_C");
+	model.component("TestCase").physics("liion").feature("ec1").set("phis0init", "mat1.elpot.Eeq_int1(cs0/csmax)");
+	model.component("TestCase").physics("liion").feature("ec1").label("Electrode-CC");
+	
+	// 
+	if(CBD)
+	{
+		// Carbon Binder //
+		model.component("TestCase").physics("liion").create("pcb1", "PorousConductiveBinder", 3);
+		model.component("TestCase").physics("liion").feature("pcb1").selection().named("geom1_"+z.select("Electrolyte"));
+		model.component("TestCase").physics("liion").feature("pcb1").set("ElectrolyteMaterial", "mat3");
+		model.component("TestCase").physics("liion").feature("pcb1").set("sigma_mat", "userdef");
+		model.component("TestCase").physics("liion").feature("pcb1").set("sigma", new String[]{"sigma_cbd", "0", "0", "0", "sigma_cbd", "0", "0", "0", "sigma_cbd"});
+		model.component("TestCase").physics("liion").feature("pcb1").set("epss", "eps_s_b");
+		model.component("TestCase").physics("liion").feature("pcb1").set("epsl", "eps_l_b");
+		model.component("TestCase").physics("liion").feature("pcb1").set("ElectricCorrModel", "NoCorr");
+		model.component("TestCase").physics("liion").feature("pcb1").label("Electrolyte + CBD");
 	}
+	
+	// Electrode-Electrolyte interface //
+	model.component("TestCase").physics("liion").create("bei1", "InternalElectrodeSurface", 2);
+	model.component("TestCase").physics("liion").feature("bei1").selection().named("geom1_"+z.select("Electrode Surface"));
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("minput_concentration", "c");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("MaterialOption", "mat1");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_Graphite [A/m^2]");
+	model.component("TestCase").physics("liion").feature("bei1").label("Electrode/Electrolyte Interface");
 
-	if (lis) {
+	// Separator //
+	model.component("TestCase").physics("liion").create("sep1", "Separator", 3);
+	model.component("TestCase").physics("liion").feature("sep1").selection().named("geom1_"+z.select("Separator"));
+	model.component("TestCase").physics("liion").feature("sep1").set("ElectrolyteMaterial", "mat3");
+	model.component("TestCase").physics("liion").feature("sep1").label("Separator");
 
-		// Tertiary Current Distribution, Nernst-Planck Model // 
-		model.component("TestCase").physics().create("tcd", "TertiaryCurrentDistributionNernstPlanck", new String[][]{{"S8", "S8_2m", "S6_2m", "S4_2m", "S2_2m", "S_2m", "Li_1p", "A_1m"}});
-		model.component("TestCase").physics("tcd").label("Lithium-Sulfur Half Cell");
-		model.component("TestCase").physics("tcd").selection().named("geom1_"+z.select("Lithium-Sulfur Half Cell"));
-		model.component("TestCase").physics("tcd").prop("SpeciesProperties").set("FromElectroneutrality", 8);
+	// Lithium electrode //
+	model.component("TestCase").physics("liion").create("es1", "ElectrodeSurface", 2);
+	model.component("TestCase").physics("liion").feature("es1").selection().named("geom1_"+z.select("Lithium Foil"));
+	model.component("TestCase").physics("liion").feature("es1").feature("er1").set("i0_ref", "i0_ref_Li");
+	model.component("TestCase").physics("liion").feature("es1").label("Lithium Foil");
 
-		// Species Charges //
-		model.component("TestCase").physics("tcd").feature("sp1").label("Species Charges");
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -2, 1);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -2, 2);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -2, 3);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -2, 4);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -2, 5);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", 1, 6);
-		model.component("TestCase").physics("tcd").feature("sp1").setIndex("z", -1, 7);
-
-		// Electrolyte //
-		model.component("TestCase").physics("tcd").feature("ice1").label("Electrolyte");
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S8", new String[]{"D_S8", "0", "0", "0", "D_S8", "0", "0", "0", "D_S8"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S8_2m", new String[]{"D_S8_2m", "0", "0", "0", "D_S8_2m", "0", "0", "0", "D_S8_2m"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S6_2m", new String[]{"D_S6_2m", "0", "0", "0", "D_S6_2m", "0", "0", "0", "D_S6_2m"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S4_2m", new String[]{"D_S4_2m", "0", "0", "0", "D_S4_2m", "0", "0", "0", "D_S4_2m"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S2_2m", new String[]{"D_S2_2m", "0", "0", "0", "D_S2_2m", "0", "0", "0", "D_S2_2m"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_S_2m", new String[]{"D_S_2m", "0", "0", "0", "D_S_2m", "0", "0", "0", "D_S_2m"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_Li_1p", new String[]{"D_Li_1p", "0", "0", "0", "D_Li_1p", "0", "0", "0", "D_Li_1p"});
-		model.component("TestCase").physics("tcd").feature("ice1").set("D_A_1m", new String[]{"D_A_1m", "0", "0", "0", "D_A_1m", "0", "0", "0", "D_A_1m"});
-
-		// Initial Values Electrolyte //
-		model.component("TestCase").physics("tcd").feature("init1").label("Initial Values Electrolyte");
-		model.component("TestCase").physics("tcd").feature("init1").setIndex("initc", "c_Li_1p_ref", 6);
-		model.component("TestCase").physics("tcd").feature("init1").set("initphis", "E0");
-
-		// Initial Values Electrode //
-		model.component("TestCase").physics("tcd").create("init2", "init", 3);
-		model.component("TestCase").physics("tcd").feature("init2").label("Initial Values Electrode");
-		model.component("TestCase").physics("tcd").feature("init2").selection().set(3);
-		model.component("TestCase").physics("tcd").feature("init2").selection().named("geom1_"+z.select("Electrode"));
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S8_ref", 0);
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S8_2m_ref", 1);
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S6_2m_ref", 2);
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S4_2m_ref", 3);
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S2_2m_ref", 4);
-		model.component("TestCase").physics("tcd").feature("init2").setIndex("initc", "c_S_2m_ref", 5);
-		model.component("TestCase").physics("tcd").feature("init2").set("initphis", "E0");
-
-		// Electrode //		
-		model.component("TestCase").physics("tcd").create("ece1", "Electrode", 3);
-		model.component("TestCase").physics("tcd").feature("ece1").label("Sulfur");
-		model.component("TestCase").physics("tcd").feature("ece1").selection().named("geom1_"+z.select("Electrode"));
-		model.component("TestCase").physics("tcd").feature("ece1").set("sigma_mat", "userdef");
-		model.component("TestCase").physics("tcd").feature("ece1").set("sigma", new String[]{"sigma_s", "0", "0", "0", "sigma_s", "0", "0", "0", "sigma_s"});
-
-		// Electrode Current Collector interface //
-		model.component("TestCase").physics("tcd").create("ec1", "ElectrodeCurrent", 2);
-		model.component("TestCase").physics("tcd").feature("ec1").label("Sulfur-CC");
-		model.component("TestCase").physics("tcd").feature("ec1").selection().named("geom1_"+z.select("Electrode Current Collector"));
-		model.component("TestCase").physics("tcd").feature("ec1").set("Its", "-i_Crate");
-		model.component("TestCase").physics("tcd").feature("ec1").set("phis0init", "E0");
-
-		// Electrode-Electrolyte interface //
-		model.component("TestCase").physics("tcd").create("bei1", "InternalElectrodeSurface", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").label("Electrode-Electrolyte Interface");
-		model.component("TestCase").physics("tcd").feature("bei1").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").set("Species", new String[][]{{"Li2S_s"}, {"S8_s"}});
-		model.component("TestCase").physics("tcd").feature("bei1").set("rhos", new String[][]{{"rho_Li2S_s"}, {"rho_S8_s"}});
-		model.component("TestCase").physics("tcd").feature("bei1").set("Ms", new String[][]{{"M_Li2S_s"}, {"M_S8_s"}});
-		// Electrochemical and Dissolution/Precipitation reactions //
-		// 1/2 S8 + e_m --> 1/2 S8_2m //
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er1").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er1").setIndex("Vi0", "-1/2", 0);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er1").setIndex("Vi0", "1/2", 1);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er1").set("Eeq_ref", "Eeq_1_ref");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er1").set("i0_ref", "i0_1_ref");
-		// 3/2 S8_2m + e_m --> 2 S6_2m //
-		model.component("TestCase").physics("tcd").feature("bei1").create("er2", "ElectrodeReaction", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er2").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er2").setIndex("Vi0", "-3/2", 1);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er2").setIndex("Vi0", 2, 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er2").set("Eeq_ref", "Eeq_2_ref");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er2").set("i0_ref", "i0_2_ref");
-		// S6_2m + e_m --> 3/2 S4_2m //
-		model.component("TestCase").physics("tcd").feature("bei1").create("er3", "ElectrodeReaction", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er3").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er3").setIndex("Vi0", -1, 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er3").setIndex("Vi0", "3/2", 3);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er3").set("Eeq_ref", "Eeq_3_ref");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er3").set("i0_ref", "i0_3_ref");
-		// 1/2 S4_2m + e_m --> S2_2m //
-		model.component("TestCase").physics("tcd").feature("bei1").create("er4", "ElectrodeReaction", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er4").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er4").setIndex("Vi0", "-1/2", 3);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er4").setIndex("Vi0", 1, 4);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er4").set("Eeq_ref", "Eeq_4_ref");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er4").set("i0_ref", "i0_4_ref");
-		// 1/2 S2_2m + e_m --> S_2m //
-		model.component("TestCase").physics("tcd").feature("bei1").create("er5", "ElectrodeReaction", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er5").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er5").setIndex("Vi0", "-1/2", 4);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er5").setIndex("Vi0", 1, 5);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er5").set("Eeq_ref", "Eeq_5_ref");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("er5").set("i0_ref", "i0_5_ref");
-		// Li_1p + S_2m --> Li2S(s) //
-		model.component("TestCase").physics("tcd").feature("bei1").create("nfr1", "NonFaradaicReactions", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").label("Non-Faradaic Reactions - Li2S(s)");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").setIndex("species", true, 5);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").setIndex("J0", "-R_Li2S_s", 5);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").setIndex("species", true, 6);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").setIndex("J0", "-2*R_Li2S_s", 6);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr1").setIndex("R", "R_Li2S_s", 0, 0);
-		// S8(s) --> S8 //
-		model.component("TestCase").physics("tcd").feature("bei1").create("nfr2", "NonFaradaicReactions", 2);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr2").label("Non-Faradaic Reactions - S8(s)");
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr2").selection().named("geom1_"+z.select("Electrode Surface"));
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr2").setIndex("species", true, 0);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr2").setIndex("J0", "-R_S8_s", 0);
-		model.component("TestCase").physics("tcd").feature("bei1").feature("nfr2").setIndex("R", "R_S8_s", 1, 0);
-
-
-		// Separator //
-		model.component("TestCase").physics("tcd").create("sep1", "Separator", 3);
-		model.component("TestCase").physics("tcd").feature("sep1").label("Separator");
-		model.component("TestCase").physics("tcd").feature("sep1").selection().named("geom1_"+z.select("Separator"));
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S8", new String[]{"D_S8", "0", "0", "0", "D_S8", "0", "0", "0", "D_S8"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S8_2m", new String[]{"D_S8_2m", "0", "0", "0", "D_S8_2m", "0", "0", "0", "D_S8_2m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S6_2m", new String[]{"D_S6_2m", "0", "0", "0", "D_S6_2m", "0", "0", "0", "D_S6_2m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S4_2m", new String[]{"D_S4_2m", "0", "0", "0", "D_S4_2m", "0", "0", "0", "D_S4_2m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S2_2m", new String[]{"D_S2_2m", "0", "0", "0", "D_S2_2m", "0", "0", "0", "D_S2_2m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_S_2m", new String[]{"D_S_2m", "0", "0", "0", "D_S_2m", "0", "0", "0", "D_S_2m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_Li_1p", new String[]{"D_Li_1p", "0", "0", "0", "D_Li_1p", "0", "0", "0", "D_Li_1p"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("D_A_1m", new String[]{"D_A_1m", "0", "0", "0", "D_A_1m", "0", "0", "0", "D_A_1m"});
-		model.component("TestCase").physics("tcd").feature("sep1").set("epsl", 0.4);
-
-		// Lithium electrode //
-		model.component("TestCase").physics("tcd").create("es1", "ElectrodeSurface", 2);
-		model.component("TestCase").physics("tcd").feature("es1").label("Lithium Foil");
-		model.component("TestCase").physics("tcd").feature("es1").selection().named("geom1_"+z.select("Lithium Foil"));
-		// Li --> Li_1p + e_m //
-		model.component("TestCase").physics("tcd").feature("es1").feature("er1").selection().named("geom1_"+z.select("Lithium Foil"));
-		model.component("TestCase").physics("tcd").feature("es1").feature("er1").setIndex("Vi0", -1, 6);
-		model.component("TestCase").physics("tcd").feature("es1").feature("er1").set("Eeq_ref", "Eeq_Li_ref");
-		model.component("TestCase").physics("tcd").feature("es1").feature("er1").set("i0_ref", "i0_Li_ref");
-	}
+	model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").set("iloc_src", "root.TestCase.liion.bei1.er1.iloc");
 
 	return model;
 }
 
-public static Model MeshConstruction(Model model, Zone z, boolean liion, boolean lis) {
+public static Model MeshConstruction(Model model, Zone z) {
 	
 	model.component("TestCase").mesh().create("mesh1");
 	
@@ -985,15 +788,12 @@ public static Model MeshConstruction(Model model, Zone z, boolean liion, boolean
 	
 	model.component("TestCase").mesh("mesh1").create("ftet1", "FreeTet");
 	model.component("TestCase").mesh("mesh1").feature("ftet1").selection().geom("geom1", 3);
-	if (liion)
-		model.component("TestCase").mesh("mesh1").feature("ftet1").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
-	if (lis)
-		model.component("TestCase").mesh("mesh1").feature("ftet1").selection().named("geom1_"+z.select("Lithium-Sulfur Half Cell"));
+	model.component("TestCase").mesh("mesh1").feature("ftet1").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
 	
 	return model;
 }
 
-public static Model TestStudy(Model  model, String time, Tolerance tol, boolean liion, boolean lis) {
+public static Model TestStudy(Model  model, String time, Tolerance tol) {
 
 	model.component("TestCase").view("view1").hideObjects().create("hide1");
 	model.component("TestCase").view("view1").hideObjects("hide1").init(3);
@@ -1001,10 +801,7 @@ public static Model TestStudy(Model  model, String time, Tolerance tol, boolean 
 	
 	model.component("TestCase").probe().create("var1", "GlobalVariable");
 	model.component("TestCase").probe("var1").label("Global Variable Probe - E cell");
-	if (liion)
-		model.component("TestCase").probe("var1").set("expr", "liion.phis0_ec1");
-	if (lis)
-		model.component("TestCase").probe("var1").set("expr", "phis");
+	model.component("TestCase").probe("var1").set("expr", "liion.phis0_ec1");
 	model.component("TestCase").probe("var1").set("descractive", true);
 	model.component("TestCase").probe("var1").set("descr", "Cell voltage");
 	
@@ -1013,24 +810,16 @@ public static Model TestStudy(Model  model, String time, Tolerance tol, boolean 
 	model.study("std1").create("cdi", "CurrentDistributionInitialization");
 	model.study("std1").feature("cdi").set("solnum", "auto");
 	model.study("std1").feature("cdi").set("notsolnum", "auto");
-	if (liion) {
-		model.study("std1").feature("cdi").setSolveFor("/physics/liion", true);
-		model.study("std1").feature("cdi").setSolveFor("/physics/tds", false);
-	}
-	if (lis)
-		model.study("std1").feature("cdi").setSolveFor("/physics/tcd", true);
+	model.study("std1").feature("cdi").setSolveFor("/physics/liion", true);
+	model.study("std1").feature("cdi").setSolveFor("/physics/tds", false);
 	model.study("std1").feature("cdi").set("initType", "secondary");
 
 	model.study("std1").create("time", "Transient");
 	model.study("std1").feature("time").set("initialtime", "0");
 	model.study("std1").feature("time").set("solnum", "auto");
 	model.study("std1").feature("time").set("notsolnum", "auto");
-	if (liion) {
-		model.study("std1").feature("time").setSolveFor("/physics/liion", true);
-		model.study("std1").feature("time").setSolveFor("/physics/tds", true);
-	}
-	if (lis)
-		model.study("std1").feature("time").setSolveFor("/physics/tcd", true);
+	model.study("std1").feature("time").setSolveFor("/physics/liion", true);
+	model.study("std1").feature("time").setSolveFor("/physics/tds", true);
 	model.study("std1").feature("time").set("tunit", "h");
 	model.study("std1").feature("time").set("usertol", false);
 	model.study("std1").feature("time").set("tlist", time);
