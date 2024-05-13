@@ -132,9 +132,10 @@ public static void main(String[] args) throws IOException
 	int i=0;
 	int k=0;
 
-	boolean cathode = false;
-	boolean anode = true;
-	boolean diffusion = true;
+	boolean cathode = true;
+	boolean anode = false;
+	boolean diffusion = false;
+	boolean eqpot = false;
 
 	if ((cathode && anode) || (!cathode && !anode)) {
 		System.out.println("Choose between cathode or anode simulation!");
@@ -226,21 +227,23 @@ public static void main(String[] args) throws IOException
 		i+=1;
 	}
 
-	i=1;k=1;
-	Voltage[0][0]=ExpVoltage[0][0];
-	Voltage[0][1]=ExpVoltage[0][1];
-	do{
-		if(dt>Double.parseDouble(ExpVoltage[i][0]) && dt<Double.parseDouble(ExpVoltage[i+1][0]))
-		{
-			Voltage[k][0]=ExpVoltage[i][0];
-			Voltage[k][1]=ExpVoltage[i][1];
-			dt=dt+0.01;
-			k+=1;
-		}
-		i+=1;
-	}while(dt<1.0);
-	Voltage[99][0]=ExpVoltage[2472][0];
-	Voltage[99][1]=ExpVoltage[2472][1];
+	if (eqpot) {
+		i=1;k=1;
+		Voltage[0][0]=ExpVoltage[0][0];
+		Voltage[0][1]=ExpVoltage[0][1];
+		do{
+			if(dt>Double.parseDouble(ExpVoltage[i][0]) && dt<Double.parseDouble(ExpVoltage[i+1][0]))
+			{
+				Voltage[k][0]=ExpVoltage[i][0];
+				Voltage[k][1]=ExpVoltage[i][1];
+				dt=dt+0.01;
+				k+=1;
+			}
+			i+=1;
+		}while(dt<1.0);
+		Voltage[99][0]=ExpVoltage[2472][0];
+		Voltage[99][1]=ExpVoltage[2472][1];	
+	}
 
 	String [][] D=new String[10000][2];
 	String l3="";
@@ -299,7 +302,10 @@ public static void main(String[] args) throws IOException
 	}
 
 	// Materials //
-	model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
+	if (eqpot)
+		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
+	else
+		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
 	System.out.println("Materials Definition done");
 
 	// Physics //
@@ -732,7 +738,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").create("el1", "Electrode", 3);
 	model.component("TestCase").physics("liion").feature("el1").selection().named("geom1_"+z.select("Electrode"));
 	model.component("TestCase").physics("liion").feature("el1").set("sigma_mat", "userdef");
-	model.component("TestCase").physics("liion").feature("el1").set("sigma", new int[]{"sigma_S", 0, 0, 0, "sigma_S", 0, 0, 0, "sigma_S"});
+	model.component("TestCase").physics("liion").feature("el1").set("sigma", new String[]{"sigma_S", "0", "0", "0", "sigma_S", "0", "0", "0", "sigma_S"});
 	model.component("TestCase").physics("liion").feature("el1").label("Electrode");
 	
 	// Electrode Current Collector interface //
@@ -763,7 +769,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("minput_concentration", "c");
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("MaterialOption", "mat1");
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
-	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_Graphite [A/m^2]");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_electrode [A/m^2]");
 	model.component("TestCase").physics("liion").feature("bei1").label("Electrode/Electrolyte Interface");
 
 	// Separator //
