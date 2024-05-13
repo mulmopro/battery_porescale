@@ -305,7 +305,7 @@ public static void main(String[] args) throws IOException
 	if (eqpot)
 		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
 	else
-		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
+		model = MaterialsDefinition(model, z, ExpVoltage, D, D_L, sigma_L, CsMax, diffusion);
 	System.out.println("Materials Definition done");
 
 	// Physics //
