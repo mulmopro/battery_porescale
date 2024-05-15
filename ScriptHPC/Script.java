@@ -221,7 +221,7 @@ public static void main(String[] args) throws IOException
 	while((l2=br2.readLine())!=null)
 	{
 		String [] line2=new String[2];
-		line2=l2.split("\t",0);
+		line2=l2.split(" ",0);
 		ExpVoltage[i][0]=line2[0];
 		ExpVoltage[i][1]=line2[1];
 		i+=1;
@@ -245,19 +245,21 @@ public static void main(String[] args) throws IOException
 		Voltage[99][1]=ExpVoltage[2472][1];	
 	}
 
-	String [][] D=new String[10000][2];
-	String l3="";
-	String diffFile = "D.txt";
-	String filePath8 = currentDir + folder + diffFile;
-	BufferedReader br3 = new BufferedReader(new FileReader(filePath8));
-	i=0;
-	while((l3=br3.readLine())!=null)
-	{
-		String [] line3=new String[2];
-		line3=l3.split("\t",0);
-		D[i][0]=line3[0];
-		D[i][1]=line3[1];
-		i+=1;
+	if (diffusion) {
+		String [][] D=new String[10000][2];
+		String l3="";
+		String diffFile = "D.txt";
+		String filePath8 = currentDir + folder + diffFile;
+		BufferedReader br3 = new BufferedReader(new FileReader(filePath8));
+		i=0;
+		while((l3=br3.readLine())!=null)
+		{
+			String [] line3=new String[2];
+			line3=l3.split(" ",0);
+			D[i][0]=line3[0];
+			D[i][1]=line3[1];
+			i+=1;
+		}
 	}
 
 	String [][] D_L=new String[10000][2];
@@ -303,9 +305,16 @@ public static void main(String[] args) throws IOException
 
 	// Materials //
 	if (eqpot)
-		model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
+		if (diffusion)
+			model = MaterialsDefinition(model, z, Voltage, D, D_L, sigma_L, CsMax, diffusion);
+		else
+			model = MaterialsDefinition(model, z, Voltage, D_L, D_L, sigma_L, CsMax, diffusion);
 	else
-		model = MaterialsDefinition(model, z, ExpVoltage, D, D_L, sigma_L, CsMax, diffusion);
+		if (diffusion)
+			model = MaterialsDefinition(model, z, ExpVoltage, D, D_L, sigma_L, CsMax, diffusion);
+		else
+			model = MaterialsDefinition(model, z, ExpVoltage, D_L, D_L, sigma_L, CsMax, diffusion);
+
 	System.out.println("Materials Definition done");
 
 	// Physics //
