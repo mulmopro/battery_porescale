@@ -9,4 +9,4 @@ i0_ref_electrode 10 "Reference exchange current density for Lihtium intercalatio
 i0_ref_Li 100 "Reference exchange current density for lithium deposition/dissolution"
 rho 92.8[nΩ*m] "Lithium foil electrical resistivity"
 sigma_S 100[S/m] "Electrode electrical conductivity"
-D_iso 5E-13[m^2/s] "Diffusion coefficient of electrode"
+D_sol 5E-13[m^2/s] "Diffusion coefficient of electrode"

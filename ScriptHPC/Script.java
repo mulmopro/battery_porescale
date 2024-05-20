@@ -245,8 +245,8 @@ public static void main(String[] args) throws IOException
 		Voltage[99][1]=ExpVoltage[2472][1];	
 	}
 
+	String [][] D=new String[10000][2];
 	if (diffusion) {
-		String [][] D=new String[10000][2];
 		String l3="";
 		String diffFile = "D.txt";
 		String filePath8 = currentDir + folder + diffFile;
@@ -483,7 +483,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.Delete(model, "Delete "+String.valueOf(i+1), op.comsel, -1, true);
 	
 	// Copy of the system, we'll obtain system 1 and 2 //
-	model=op.Copy(model, "Copy", tmp, 1, "20", "0", "0", true);
+	model=op.Copy(model, "Copy", tmp, 1, "xmax*1.2/sf", "0", "0", true);
 	
 	// Selection of Electrolyte 1 //
 	model=op.BallSelection(model, "Electrolyte 1", "0", "0", "zmax/sf", "all", 3, "intersects", "off", true);
@@ -498,7 +498,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.Union(model, "Particle Union", op.del, false, false, true);
 	
 	// Selection the Electrolyte 2 //
-	model=op.BallSelection(model, "Electrolyte 2", "20", "0", "zmax/sf", "all", 3, "intersects", "off", true);
+	model=op.BallSelection(model, "Electrolyte 2", "xmax*1.2/sf", "0", "zmax/sf", "all", 3, "intersects", "off", true);
 	
 	// Selection of Electrode 2 //
 	model=op.AdjacentSelection(model, "Electrode Block 2", new String[]{op.ballsel}, 3, 3, false, false, "off", true);
@@ -507,7 +507,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.Delete(model, "Delete Electrode 2", op.adjsel, 3, true);
 	
 	// Move Electrolyte 2 to the original position //
-	model=op.Move(model, "Move", op.del, 3, "-20", "0", "0", true);
+	model=op.Move(model, "Move", op.del, 3, "-xmax*1.2/sf", "0", "0", true);
 	
 	// In this way we had obtained two object: the electrolyte-object and the particles-object. //
 	// This step is necessary to avoid that COMSOL identify an interface between two particles that are in contact. //
@@ -543,7 +543,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	i=50;
 
 	model=op.BoxSelection (model, "Remove Details 1", 3, "intersects", 
-	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","-zmax","+zmax"}, "all", "", "on", false);
+	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","-zmax","+zmax*1.1"}, "all", "", "on", false);
 
 	model=op.ComplementSelection(model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
 
@@ -639,9 +639,9 @@ public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage
 		model=mt.newFunc(model, "Electrode", "def", "D_int1", D, "piecewisecubic", "linear", "m^2/s", "");
 	} else {
 		T=new String[]
-		{"D_iso", "0", "0",
-		"0", "D_iso", "0", 
-		"0", "0", "D_iso"};
+		{"D_sol", "0", "0",
+		"0", "D_sol", "0", 
+		"0", "0", "D_sol"};
 		model=mt.setup(model, "Electrode", "def", new String[]{"diffusion"}, T, true);
 	}
 
