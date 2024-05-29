@@ -33,11 +33,19 @@ class ParticlesGeometry
 
 class Tolerance
 {
-	private double cut_tol;		public double cut() {return cut_tol;}
-	private double fin_tol;		public double fin() {return fin_tol;}
-	private double mesh_tol;	public double mesh() {return mesh_tol;}
-	private double imp_tol;		public double imp() {return imp_tol;}
-	private double vol_tol;		public double vol() {return vol_tol;}
+	public String type="anode";
+	public String time="range(0,0.001/C_rate,0.95/C_rate)";
+	public int refinement=4;
+	public String diff="yes";
+	public String equp="yes";
+	public String auto="yes";
+	public double cut_tol;
+	public double fin_tol;
+	public double mesh_tol;
+	public double imp_tol;
+	public double vol_tol;
+	
+	public void setup()throws IOException{}
 }
 
 class Zone
@@ -125,6 +133,17 @@ class Materials
 	{return model;}
 }
 
+class Mesh
+{
+	String ftri="ftri";				private int ftri_c=1;
+	String ftet="ftet";				private int ftet_c=1;
+	private String last_op="tmp";	
+	
+	public Model freeTriangular(Model model, String label, int Refinement, int singleface) {return model;}
+	public Model freeTetrahedral(Model model, String label, String zone, int Refinement) {return model;}
+	public Model error(Model model) throws IOException {return model;}
+}
+	
 public class Script{
 
 public static void main(String[] args) throws IOException
@@ -132,20 +151,38 @@ public static void main(String[] args) throws IOException
 	int i=0;
 	int k=0;
 
-	boolean cathode = true;
-	boolean anode = false;
-	boolean diffusion = false;
-	boolean eqpot = false;
+	boolean cathode = false;
+	boolean anode = true;
+	boolean diffusion = true;
+	boolean eqpot = true;
+	
+	// Definition of the tollerances and setup //
+	Tolerance tol;
+	tol = new Tolerance();
+	tol.setup();
+	
+	if (tol.diff.contains("y"))
+		diffusion=true;
+	else
+		diffusion=false;
+	if (tol.equp.contains("y"))
+		eqpot=true;
+	else
+		eqpot=false;
 
-	if ((cathode && anode) || (!cathode && !anode)) {
-		System.out.println("Choose between cathode or anode simulation!");
-		return;
-	}
 
-	if (cathode)
+	if (tol.type.contains("cathode"))
+	{
 		System.out.println("Creating a model for cathode of Lithium-Ion batteries");
-	if (anode)
-		System.out.println("Creating a model for anode of Lithium-Sulfur batteries");
+		cathode=true;
+		anode=false;
+	}
+	if (tol.type.contains("anode"))
+	{
+		System.out.println("Creating a model for anode of Lithium-Ion batteries");
+		cathode=false;
+		anode=true;
+	}
 
 	String currentDir = new File(".").getAbsolutePath();
 	// Remove the trailing '.' character
@@ -154,23 +191,14 @@ public static void main(String[] args) throws IOException
 	System.out.println("Current Directory: " + currentDir);
 
 	String folder = "Parameters/";
-	// String outFile = "out.txt";
-	// String filePath1 = currentDir + outFile;
-
-	// FileWriter file = new FileWriter(filePath1);
-	// BufferedWriter output = new BufferedWriter(file);
-			
+	
 	// Model creation //
 	Model model = ModelUtil.create("Model");
 
 	model.component().create("TestCase", true);
 
 	// Time interval //
-	String time="range(0,0.001/C_rate,0.95/C_rate)";
-	
-	// Definition of the tollerances //
-	Tolerance tol;
-	tol = new Tolerance();
+	String time=tol.time;
 	
 	// Zones definition //
 	Zone z;
@@ -216,7 +244,7 @@ public static void main(String[] args) throws IOException
 	String eeqFile = "C20.txt";
 	String filePath7 = currentDir + folder + eeqFile;
 	BufferedReader br2 = new BufferedReader(new FileReader(filePath7));
-	
+	int numlines=0;
 	i=0;
 	while((l2=br2.readLine())!=null)
 	{
@@ -226,7 +254,7 @@ public static void main(String[] args) throws IOException
 		ExpVoltage[i][1]=line2[1];
 		i+=1;
 	}
-
+	numlines=i;
 	if (eqpot) {
 		i=1;k=1;
 		Voltage[0][0]=ExpVoltage[0][0];
@@ -241,8 +269,8 @@ public static void main(String[] args) throws IOException
 			}
 			i+=1;
 		}while(dt<1.0);
-		Voltage[99][0]=ExpVoltage[2472][0];
-		Voltage[99][1]=ExpVoltage[2472][1];	
+		Voltage[99][0]=ExpVoltage[numlines][0];
+		Voltage[99][1]=ExpVoltage[numlines][1];	
 	}
 
 	String [][] D=new String[10000][2];
@@ -321,50 +349,16 @@ public static void main(String[] args) throws IOException
 	model = PhysicsDefinition(model, z, cathode);
 	System.out.println("Physics Definition done");
 	
-	// Mesh //
-	model = MeshConstruction(model, z);
-	System.out.println("Mesh Definition set");
+	// Mesh construction //
+	if (tol.auto.contains("y"))
+	{
+		model = MeshConstruction(model, z, tol.refinement);
+		System.out.println("Mesh Construction done");
+	}
 	
-	// Case study  //
+	// Case study //
 	model = TestStudy(model, time, tol);
 	System.out.println("TestStudy created");
-	
-	// Mesh construction //
-	model.component("TestCase").mesh("mesh1").run();
-
-	// boolean problem = model.component("TestCase").mesh("mesh1").hasProblems();
-	// String [] problemFeatures = model.component("TestCase").mesh("mesh1").problems();
-	// MeshFeature problematicFeature = model.component("TestCase").mesh("mesh1").feature(problemFeatures[0]);
-	// String [] errors = problematicFeature.errors();
-	
-	// for (String tag : errors) {
-	// 	String errorMessage = problematicFeature.problem(tag).message();
-	// 	System.out.println(errorMessage);
-	// 	if (problematicFeature.problem(tag).hasSelection()) {
-	// 	MeshSelection sel = problematicFeature.problem(tag).selection();
-	// 	System.out.println("Selection: " + sel);
-	// 	}
-	// 	String[] problemDetails = problematicFeature.problem(tag).problems();
-	// 	for (String tag2 : problemDetails) {
-	// 	MeshProblemFeature detail = problematicFeature.problem(tag).problem(tag2);
-	// 	// Recursively analyze subproblems
-	// 	analyzeProblems(detail);
-	// 	}
-	// }
-
-	// String msg1 = model.component("TestCase").mesh("mesh1").feature("ftet1").problem("error").getString("message"); 
-	// System.out.println(msg1);
-	// String det1 = model.component("TestCase").mesh("mesh1").feature("ftet1").problem("error").getString("details"); 
-	// System.out.println(det1);
-	// String msg2 = model.component("TestCase").mesh("mesh1").feature("ftet1").problem("error").problem("error_a").getString("message"); 
-	// System.out.println(msg2);
-	// String det2 = model.component("TestCase").mesh("mesh1").feature("ftet1").problem("error").problem("error_a").getString("details"); 
-	// System.out.println(det2);
-
-	// MeshFeatureList features = model.component("TestCase").mesh("mesh1").feature();
-	// System.out.println(features);
-
-	System.out.println("Mesh Construction done");
 }
 
 public static Model ParameterValues(Model model, String currentDir, String folder, String paramFile, String condFile, String geomFile) {
@@ -404,7 +398,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	double volume_particle;
 	double volume_pard1;
 	double volume_pard2;
-	double electrode_height=60;
+	double electrode_height=40;
 	
 	String adjsel="adjsel";		int adjsel_c=1;
 	String ballsel="ballsel";	int ballsel_c=1;
@@ -522,7 +516,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.Selection(model, "Limit Block Selection", op.blk, "off", true);
 	
 	// Cut and partition of the system through the block //
-	model=op.PartitionDomain(model, "System Readjustment", "object", z.select("Initial Domain"), 0, op.sel, 0, tol.cut(), true);
+	model=op.PartitionDomain(model, "System Readjustment", "object", z.select("Initial Domain"), 0, op.sel, 0, tol.cut_tol, true);
 	
 	// Selection of the block and the cut zone //
 	model=op.BallSelection(model, "Cut Selection", "0", "0", "zmax+zmin*0.5", "all", 3, "intersects", "off", true);
@@ -538,7 +532,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	
 	// Form the final union //
 	model.component("TestCase").geom("geom1").feature("fin").set("repairtoltype", "relative");
-	model.component("TestCase").geom("geom1").feature("fin").set("repairtol", tol.fin());
+	model.component("TestCase").geom("geom1").feature("fin").set("repairtol", tol.fin_tol);
 	model.component("TestCase").geom("geom1").run("fin");
 	i=50;
 
@@ -798,43 +792,167 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	return model;
 }
 
-public static Model MeshConstruction(Model model, Zone z) {
+public static Model MeshConstruction(Model model, Zone z, int Refinement) throws IOException {
 	
+	System.out.println("Mesh Construction Start");
+	int i=0;
+	int j=0;
+	int c=0;
+	int k=0;
+	Mesh ms;
+	ms=new Mesh();
+	boolean mesh_problems=false;
+	boolean face_problems=true;
+	int [] faces = new int [100];
+	int [] ref = new int [100];
+	int errorfaces=0;
+	int err_c=0;
+	int found=0;
 	model.component("TestCase").mesh().create("mesh1");
-	
-	// General mesh features //
-	model.component("TestCase").mesh("mesh1").feature("size").set("custom", true);
-	model.component("TestCase").mesh("mesh1").feature("size").set("hmax", "hmax");
-	model.component("TestCase").mesh("mesh1").feature("size").set("hmin", "hmin");
-	model.component("TestCase").mesh("mesh1").feature("size").set("hgrad", 1.5);
-	model.component("TestCase").mesh("mesh1").feature("size").set("hcurve", 0.6);
-	model.component("TestCase").mesh("mesh1").feature("size").set("hnarrow", 0.5);
-	
-	// Electrolyte mesh features //
-	model.component("TestCase").mesh("mesh1").create("siz1", "Size");
-	model.component("TestCase").mesh("mesh1").feature("siz1").label("Electrolyte");
-	model.component("TestCase").mesh("mesh1").feature("siz1").selection().named("geom1_"+z.select("Electrolyte"));
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("custom", true);
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("hmax", "hmax");
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("hmin", "hmin");
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("hgrad", 1.5);
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("hcurve", 0.6);
-	model.component("TestCase").mesh("mesh1").feature("siz1").set("hnarrow", 0.5);
-	
-	model.component("TestCase").mesh("mesh1").create("siz2", "Size");
-	model.component("TestCase").mesh("mesh1").feature("siz2").label("Electrode");
-	model.component("TestCase").mesh("mesh1").feature("siz2").selection().named("geom1_"+z.select("Electrode"));
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("custom", true);
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("hmax", "hmax");
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("hmin", "hmin");
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("hgrad", 1.5);
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("hcurve", 0.6);
-	model.component("TestCase").mesh("mesh1").feature("siz2").set("hnarrow", 0.5);
-	
-	model.component("TestCase").mesh("mesh1").create("ftet1", "FreeTet");
-	model.component("TestCase").mesh("mesh1").feature("ftet1").selection().geom("geom1", 3);
-	model.component("TestCase").mesh("mesh1").feature("ftet1").selection().named("geom1_"+z.select("Lithium-Ion Half Cell"));
-	
+	do{
+		// In this step, the single problematic faces are meshed with a refinement level equal or lower than the specified one. //
+		if (mesh_problems)
+		{
+			model.component("TestCase").mesh("mesh1").feature().clear();
+			String outFile = "error"+String.valueOf(err_c)+".txt";
+			String l12="";
+			String [] line12 = new String [10];
+			String repair;
+			face_problems=true;
+			String currentDir = new File(".").getAbsolutePath();
+			currentDir = currentDir.substring(0, currentDir.length() - 1);
+			
+			String filePath12 = currentDir + outFile;
+			BufferedReader br12 = new BufferedReader(new FileReader(filePath12));
+			while((l12=br12.readLine())!=null)
+			{
+				i=0;
+				repair=" ";
+				if (l12.contains("Bound"))
+				{
+					c=0;
+					if(l12.contains("Boundary"))
+					{
+						line12=l12.split("Boundary ",0);
+					}
+					else
+					{
+						line12=l12.split("Boundaries ",0);
+					}
+					do
+					{
+						repair=line12[1].split(", ",0)[c];
+						try
+						{
+							model=ms.freeTriangular(model, "Repairing "+repair, Refinement-i, Integer.parseInt(repair));
+							face_problems=false;
+							found=-1;
+							for (k=0;k<errorfaces;k++)
+							{
+								if (Integer.parseInt(repair)==faces[k])
+								{
+									ref[k]=ref[k]-1;
+									found=k;
+								}
+
+							}
+							if (found<0)
+							{
+								faces[errorfaces]=Integer.parseInt(repair);
+								ref[errorfaces]=Refinement-i;
+								errorfaces+=1;
+							}
+							c=c+1;
+						}
+						catch (Exception e)
+						{
+							System.out.println("WARNING "+repair+" Refinemnet: "+String.valueOf(Refinement-i));
+							model.component("TestCase").mesh("mesh1").feature().clear();
+							face_problems=true;
+							i=i+1;
+						}
+						
+					}while((Refinement-i>=0 && (face_problems || c<line12[1].split(", ",0).length)));
+				}
+				// If it is impossible to mesh a face also with Refinement=1, it is neceassry to mesh manually the face //
+				if (Refinement-i<0)
+				{
+					System.out.println("Impossible to create mesh for face "+repair);
+					errorfaces=-1;
+					break;
+				}
+			}
+		}
+		if (errorfaces<0)
+		{
+			System.out.println("EXIT");
+			break;
+		}
+		i=0;
+		
+		model.component("TestCase").mesh("mesh1").feature().clear();
+		while((errorfaces-i)>0 && mesh_problems)
+		{
+			System.out.println("REPAIRED "+String.valueOf(faces[i])+" Refinemnet: "+String.valueOf(ref[i]));	
+			model=ms.freeTriangular(model, "Repairing "+String.valueOf(faces[i]), ref[i], faces[i]);
+			i+=1;
+		}
+		// Mesh of all the boundaries //
+		try
+		{
+			model=ms.freeTriangular(model, "Boundaries", Refinement, 0);
+			mesh_problems=false;
+		}
+		catch (Exception e)
+		{
+			mesh_problems=true;
+			System.out.println("Mesh Construction Warning: Boundaries");
+			model=ms.error(model);
+			model.component("TestCase").mesh("mesh1").feature().clear();
+			err_c+=1;
+			j=j+1;
+		}
+		
+		// Mesh of the solid phase //
+		if(mesh_problems==false)
+		{
+			try
+			{
+				model=ms.freeTetrahedral(model, "Electrode", z.select("Electrode"), Refinement);
+				mesh_problems=false;
+			}
+			catch (Exception e)
+			{
+				mesh_problems=true;
+				System.out.println("Mesh Construction Warning: Electrode");
+				model=ms.error(model);
+				model.component("TestCase").mesh("mesh1").feature().clear();
+				err_c+=1;
+				j=j+1;
+			}
+		}
+		
+		// Mesh of the liquid phase //
+		if(mesh_problems==false)
+		{
+			try
+			{
+				model=ms.freeTetrahedral(model, "Electrolyte", z.select("Electrolyte Separator"), Refinement);
+				mesh_problems=false;
+			}
+			catch (Exception e)
+			{
+				mesh_problems=true;
+				System.out.println("Mesh Construction Warning: Electrolyte Separator");
+				model=ms.error(model);
+				if(j==1){model.component("TestCase").mesh("mesh1").feature().clear();}
+				err_c+=1;
+				j=j+1;
+			}
+		}
+	}while(mesh_problems && j<20);
+	if (j>=20)
+		System.out.println("MESH ERROR");
 	return model;
 }
 
