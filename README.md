@@ -11,5 +11,5 @@ TOP[Work-Flow]
   IN2(Physical Parameters)-->PACK1
   IN3(Operative Conditions)-->PACK1
   IN4(Setup)-->PACK1-->BLOCK1{Compile}
-  IN5(Java files)->BLOCK1
+  IN5(Java files)-->BLOCK1
 ```
