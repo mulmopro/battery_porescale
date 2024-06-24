@@ -7,8 +7,9 @@ Repository for simulation templates regarding continuum modelling of batteries.
 ```mermaid
 graph LR
 TOP[Work-Flow]
-  IN1(Geometrical Parameters)-->PACK{Parameters}
-  IN2(Physical Parameters)-->PACK
-  IN3(Operative Conditions)-->PACK
-  IN4(Setup)-->PACK
+  IN1(Geometrical Parameters)-->PACK1{Parameters}
+  IN2(Physical Parameters)-->PACK1
+  IN3(Operative Conditions)-->PACK1
+  IN4(Setup)-->PACK1-->BLOCK1{Compile}
+  IN5(Java files)->BLOCK1
 ```
