@@ -20,7 +20,7 @@ TOP[Work-Flow]
   IN11(Mesh.java)-->O2
   O1-->BLK1[Comsol compile]
   O2-->BLK1
-  BLK1-->PK1[(Geometry <br> creation)]
+  BLK1-->PK1([Geometry <br> creation])
   PK1-->PK2[(Material <br> definition)]
   PK2-->PK3[(Physics <br> initialization)]
   PK3-->PK4{Create mesh?}
