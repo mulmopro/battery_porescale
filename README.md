@@ -6,10 +6,11 @@ Repository for simulation templates regarding continuum modelling of batteries.
 ### Work Flow
 ```mermaid
 graph LR
-  IN1(Geometrical Parameters)-->O1((Parameters))
-  IN2(Physical Parameters)-->O1
-  IN3(Operative Conditions)-->O1
+  IN1(Geometrical <br> Parameters)-->O1((Parameters))
+  IN2(Chemical <br> Parameters)-->O1
+  IN3(Operative <br> Conditions)-->O1
   IN4(Setup)-->O1
+  IN12(Physical <br> Parameters)-->O1
   IN5(Script.java)-->O2((Java Files))
   IN6(ParticlesGeometry.java)-->O2
   IN7(Zone.java)-->O2
@@ -17,7 +18,7 @@ graph LR
   IN9(Operations.java)-->O2
   IN10(Tolerance.java)-->O2
   IN11(Mesh.java)-->O2
-  O1-->BLK1[Comsol compile]
+  O1-->BLK1[comsol compile]
   O2-->BLK1
   BLK1-->PK1([Geometry <br> creation])
   PK1-->PK2([Material <br> definition])
