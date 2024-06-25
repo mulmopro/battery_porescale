@@ -6,7 +6,6 @@ Repository for simulation templates regarding continuum modelling of batteries.
 ### Work Flow
 ```mermaid
 graph LR
-TOP[Work-Flow]
   IN1(Geometrical Parameters)-->O1((Parameters))
   IN2(Physical Parameters)-->O1
   IN3(Operative Conditions)-->O1
