@@ -42,7 +42,7 @@ First of all, it is necessary that the folder \Parameters contains all the neces
 - geometric_details.txt : this file is divided by three columns, separated by spaces (' '). The first is the variable name, the second is the variable value with the corresponding unit of measure enclosed in square brackets and, the last column is the variable description, enclosed by double quotation marks (" "). This file contains the geometrical parameters of the electrode, such as height, width, depth and, separator thikness.
 - operative_conditions.txt : this file has a formatting similar to the geometrical_details.txt but it contains the operative conditions to run the simulation, such as, for example, the discharge current.
 - chemico_physical_parameters.txt : this file has a formatting similar to the previous two and it contains all the chemical-physical constants necessary to run the simulation.
-- setup.txt : this last file contains some impostation needed by the script, such as tollerance values or the simulation time step.
+- setup.txt : this last file contains some impostation needed by the script, such as tollerance values or the simulation time step. From this file you can also decide whether to have the code automatically generate the mesh ("Automatic == yes"), and with what level of refinement (e.g. "Refinement level (1=Extremely fine; 9=Extremely coarse) == 4").
 
 ### Running:
 
@@ -58,5 +58,6 @@ In this way, the .class binary files will be generated. After this is sufficient
 This command will open COMSOL Multiphysics 6.1 in the working directory. Now you need to "Open" the Script.class file from COMSOL and this will generate your model.
 
 ### Notes
-1) Opening COMSOL 
+1) Opening COMSOL in a way other than explained may cause errors in reading parameters.
+2) The code has a feature that will try to generate a mesh for the model. Since automatic mesh generation can generate errors or meshes that are too dense, increasing the computational cost, it is suggested to check that the result of this operation meets the user's requirements. If these are not met, it is necessary to proceed with mesh generation via GUI, editing the "setup.txt" file ("Automatic == no")
 
