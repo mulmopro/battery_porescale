@@ -27,4 +27,5 @@ TOP[Work-Flow]
   PK4-->|Yes|PK5([Mesh <br> generation])
   PK4-->|No|PK6([Study <br> setup])
   PK5-->PK6
+  PK6-->PK7[(Model <br> ready <br> to be <br> run)]
 ```
