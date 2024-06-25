@@ -56,7 +56,7 @@ In this way, the .class binary files will be generated. After this is sufficient
 ```
 This command will open COMSOL Multiphysics 6.1 in the working directory. Now you need to "Open" the Script.class file from COMSOL and this will generate your model.
 
-### Notes
+### Notes:
 1) Opening COMSOL in a way other than explained may cause errors in reading parameters.
 2) The code has a feature that will try to generate a mesh for the model. Since automatic mesh generation can generate errors or meshes that are too dense, increasing the computational cost, it is suggested to check that the result of this operation meets the user's requirements. If these are not met, it is necessary to proceed with mesh generation via GUI, editing the "setup.txt" file ("Automatic == no")
 
