@@ -232,7 +232,27 @@ public static void main(String[] args) throws IOException
 		pg.Read(line);
 		i+=1;
 	}while(l1.equals("EOF")==false);
-	model = GeometryConstruction(model, z, pg, tol);
+	
+	// Saving zmax and the scale factor//
+	String filePath5 = currentDir + folder + geomFile;
+	String l7="";
+	String ZMax="";
+	double SF = 1;
+
+	BufferedReader br7 = new BufferedReader(new FileReader(filePath5));
+	while ((l7 = br7.readLine()) != null) {
+		if (l7.contains("zmax")) {
+			String[] line7 = l7.split(" ", 0);
+			// Deletion of [m]
+			ZMax = line7[1].replaceAll("[^0-9.E-]", ""); 
+		}
+		if (l7.contains("sf")){
+			String [] line7 = l7.split(" ",0);
+			SF = Double.parseDouble(line7[1]);
+		}
+	}
+	model = GeometryConstruction(model, z, pg, tol, ZMax, SF);
+
 	System.out.println("Geometry Construction done");
 
 	// Materials //
@@ -385,7 +405,7 @@ public static Model ParameterValues(Model model, String currentDir, String folde
 	return model;
 }
 
-public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry pg, Tolerance tol) {
+public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry pg, Tolerance tol, String ZMax, double SF) {
 		
 	int i=1;
 	int b=0;
@@ -445,22 +465,25 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	volume_block=op.MeasureCalc(model, z.select("Initial Domain"), 3, 0);
 
 	model=op.Group(model, "All Particles", z.select("Initial Domain"));
-		
+	
+	//Selection and creation of particles below zmax //
+	j=1;
 	for (i=0;i<pg.num_particles();i++)
-	{
+	{	
 		
-		if (pg.z_pos(i)<electrode_height)
+		if (pg.z_pos(i)+pg.z_dim(i)<(Double.parseDouble(ZMax)/SF))
 		{
 			// Creation of the particle //
-			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(i+1), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
+			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(j), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
 				
 			// Selection and renaming of the particle //
 			model=op.Selection(model, "Particle "+String.valueOf(i+1), op.elp, "off", true);
 			
 			// Rotation of the particle //
-			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"x", op.sel, "x", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.x_rot(i), true);
-			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"y", op.sel, "y", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.y_rot(i), true);
-			model=op.Rotation(model, "Rotate "+String.valueOf(i+1)+"z", op.sel, "z", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.z_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"x", op.sel, "x", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.x_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"y", op.sel, "y", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.y_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"z", op.sel, "z", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.z_rot(i), true);
+			j=j+1;
 		}
 	}
 	
