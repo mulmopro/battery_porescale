@@ -27,8 +27,11 @@ class ParticlesGeometry
     private double [] rot_x=new double[10000];		public double x_rot(int index) {return rot_x[index];}
     private double [] rot_y=new double[10000];		public double y_rot(int index) {return rot_y[index];}
     private double [] rot_z=new double[10000];		public double z_rot(int index) {return rot_z[index];}
-	private int i=0;	private int j=0;	private int k=0;
+	private int i=0;								public double zproj=0;	
+	private int j=0;	private int k=0;
+
 	public void Read(String [] line) {}
+	public double Zprojection (double x_rot, double y_rot, double x_dim, double y_dim, double z_dim, double z_pos) {return zproj;}
 }
 
 class Tolerance
@@ -150,6 +153,8 @@ public static void main(String[] args) throws IOException
 {
 	int i=0;
 	int k=0;
+	int N=1;
+	double N_point=5;
 
 	boolean cathode = false;
 	boolean anode = true;
@@ -165,10 +170,10 @@ public static void main(String[] args) throws IOException
 		diffusion=true;
 	else
 		diffusion=false;
-	if (tol.equp.contains("y"))
-		eqpot=true;
-	else
+	if (tol.equp.contains("ALL"))
 		eqpot=false;
+	else
+		eqpot=true;
 
 
 	if (tol.type.contains("cathode"))
@@ -252,13 +257,18 @@ public static void main(String[] args) throws IOException
 		}
 	}
 	model = GeometryConstruction(model, z, pg, tol, ZMax, SF);
-
 	System.out.println("Geometry Construction done");
 
 	// Materials //
 	String [][] ExpVoltage=new String[10000][2];
-	String [][] Voltage=new String[100][2];
-	double dt=0.01;
+	if (eqpot)
+	{
+		N = Integer.parseInt(tol.equp);
+		N_point = Double.parseDouble(tol.equp); 
+	}
+	String [][] Voltage=new String[N][2];
+	double dt = 0.01;
+	double dt1 = 0.01;
 	
 	String l2="";
 	String eeqFile = "C20.txt";
@@ -275,22 +285,30 @@ public static void main(String[] args) throws IOException
 		i+=1;
 	}
 	numlines=i;
-	if (eqpot) {
+	// Check the desired number of points is less than the available, otherwise use all the input //
+	if (N >= numlines)
+	 	eqpot=false;
+
+	// To save only a certain number of points //
+	if (eqpot) 
+	{
 		i=1;k=1;
 		Voltage[0][0]=ExpVoltage[0][0];
 		Voltage[0][1]=ExpVoltage[0][1];
+		dt1 = (Double.parseDouble(ExpVoltage [numlines-1][0])-Double.parseDouble(ExpVoltage[0][0]))/(N_point-1);
+		dt = dt1;
 		do{
 			if(dt>Double.parseDouble(ExpVoltage[i][0]) && dt<Double.parseDouble(ExpVoltage[i+1][0]))
 			{
 				Voltage[k][0]=ExpVoltage[i][0];
 				Voltage[k][1]=ExpVoltage[i][1];
-				dt=dt+0.01;
+				dt=dt+dt1;
 				k+=1;
 			}
 			i+=1;
-		}while(dt<1.0);
-		Voltage[99][0]=ExpVoltage[numlines][0];
-		Voltage[99][1]=ExpVoltage[numlines][1];	
+		}while(i<(numlines-1) && dt<1.0);
+		Voltage[N-1][0]=ExpVoltage[numlines-1][0];
+		Voltage[N-1][1]=ExpVoltage[numlines-1][1];	
 	}
 
 	String [][] D=new String[10000][2];
@@ -394,7 +412,6 @@ public static Model ParameterValues(Model model, String currentDir, String folde
 	String filePath4 = currentDir + folder + condFile;
 	model.param("par2").loadFile(filePath4);
 
-
 	// Geometric details //
 	model.param().create("par3");
 	model.param("par3").label("Geometric details");
@@ -468,10 +485,13 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	
 	//Selection and creation of particles below zmax //
 	j=1;
+	double z_proj=0;
 	for (i=0;i<pg.num_particles();i++)
 	{	
-		
-		if (pg.z_pos(i)+pg.z_dim(i)<(Double.parseDouble(ZMax)/SF))
+		// Method to compute the projection along the z-axis //
+		z_proj = pg.Zprojection(pg.x_rot(i), pg.y_rot(i), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.z_pos(i));
+		// Checking whether the particle is below zmax //
+		if ((z_proj*SF)<(Double.parseDouble(ZMax)))
 		{
 			// Creation of the particle //
 			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(j), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
@@ -486,7 +506,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 			j=j+1;
 		}
 	}
-	
+
 	model=op.Group(model, "Geometric Operations", z.select("Initial Domain"));
 	
 	// Selection of all particles //
@@ -539,7 +559,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.Selection(model, "Limit Block Selection", op.blk, "off", true);
 	
 	// Cut and partition of the system through the block //
-	model=op.PartitionDomain(model, "System Readjustment", "object", z.select("Initial Domain"), 0, op.sel, 0, tol.cut_tol, true);
+	model=op.PartitionDomain(model, "System Readjustment", "object", z.select("Initial Domain"), 0, op.sel, 0, tol.cut_tol, true); 
 	
 	// Selection of the block and the cut zone //
 	model=op.BallSelection(model, "Cut Selection", "0", "0", "zmax+zmin*0.5", "all", 3, "intersects", "off", true);
@@ -626,8 +646,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 
 	// Measurement of the total Electrode volume and surface //
 	volume_block=op.MeasureCalc(model, z.select("Electrode"), 3, 0);
-	model.param("par3").set("Vp",	String.valueOf(volume_block)+" [m^3]", "Total Electrode Volume"); 
-
+	model.param("par3").set("Vp",	String.valueOf(volume_block)+" [m^3]", "Total Electrode Volume");  
 	return model;
 }
 	
@@ -817,7 +836,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 
 public static Model MeshConstruction(Model model, Zone z, int Refinement) throws IOException {
 	
-	System.out.println("Mesh Construction Start");
+	
 	int i=0;
 	int j=0;
 	int c=0;

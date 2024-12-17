@@ -1,9 +1,9 @@
-Half-cell type == anode
+Half-cell type == cathode
 Automatic == yes
 Time range == range(0,0.001/C_rate,0.95/C_rate)
 Refinement level (1=Extremely fine; 9=Extremely coarse) == 4
 Experimental Diffusion == yes
-Experimental Equilibrium Potential == yes
+Equilibrium Potential (Enter the desired number of equidistant points; write 'ALL' to consider all the data) == 80
 Partition Domain Tolerance (cut_tol) == 1E-6
 Final Union Tolerance (fin_tol) == 1E-7
 Mesh Tolerance (mesh_tol) == 1E-3
