@@ -8,4 +8,4 @@ Partition Domain Tolerance (cut_tol) == 1E-6
 Final Union Tolerance (fin_tol) == 1E-7
 Mesh Tolerance (mesh_tol) == 1E-3
 Import Tolerance (imp_tol) == 1E-10
-Volume Tolernce (vol_tol) == 0.00
+Volume Tolerance (vol_tol) == 0.00
