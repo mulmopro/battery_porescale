@@ -435,7 +435,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	double volume_particle;
 	double volume_pard1;
 	double volume_pard2;
-	double electrode_height=40;
+	double z_proj=0;
 	
 	String adjsel="adjsel";		int adjsel_c=1;
 	String ballsel="ballsel";	int ballsel_c=1;
@@ -485,7 +485,6 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	
 	//Selection and creation of particles below zmax //
 	j=1;
-	double z_proj=0;
 	for (i=0;i<pg.num_particles();i++)
 	{	
 		// Method to compute the projection along the z-axis //

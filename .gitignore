@@ -1,4 +1,7 @@
 **/Yade4Battery/
 **/HTML/
 *.class
+*.class.*
+*.mph
+error*.*
 
