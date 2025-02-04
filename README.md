@@ -29,8 +29,9 @@ graph LR
   PK5-->PK6
   PK6-->PK7[(Model <br> ready <br> to be <br> run)]
 ```
+work in progress adapting to 6.3
 
-### Instuctions:
+### Instructions:
 
 To create the half cell battery model you need the software Comsol Multiphysics 6.1. This code has been tested for this specific version, therefore it can not be guaranteed to work for others versions, whether newer or older.
 First of all, it is necessary that the folder \Parameters contains all the necessary input file in a .txt format. Moreover, each file must have some specific features:
