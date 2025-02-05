@@ -51,11 +51,25 @@ To build the model is necessary to open a terminal in the working directory that
 [...]\comsol61\multiphysics\bin\comsol compile *.java
 ```
 Where [...] is the COMSOL installation path. 
-In this way, the .class binary files will be generated. After this is sufficient to run the following command, from the same directory:
+In this way, the .class binary files will be generated. After that, you can proceed with one of the following options.
+#### Semi-Automatic Option
+Once the .class files are generated, the user can choose to proceed in a semi-automatic way. 
+To do this, run from the same directory the following command:
 ```bash
 [...]\comsol61\multiphysics\bin\comsol
 ```
 This command will open COMSOL Multiphysics 6.1 in the working directory. Now you need to "Open" the Script.class file from COMSOL and this will generate your model.
+#### Automatic Option
+If you prefer to proceed fully automatically, you can bypass the COMSOL graphical interface and directly generate the .mph file and run the study. To do this, execute the following command:
+```bash
+[...]\comsol61\multiphysics\bin\comsol batch -inputfile Script.class
+```
+This will automatically generate the model. Next, to compute the study, run the following command:
+```bash
+[...]\comsol61\multiphysics\bin\comsol batch -inputfile Script_Model.mph
+```
+This will run the simulation without any manual intervention.
+
 
 ### Notes:
 1) Opening COMSOL in a way other than explained may cause errors in reading parameters.
