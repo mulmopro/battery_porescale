@@ -167,10 +167,12 @@ public class Operations
 	{
 		difsel="difsel"+String.valueOf(difsel_c);
 		model.component("TestCase").geom("geom1").create(difsel, "DifferenceSelection");
+		model.component("TestCase").geom("geom1").feature(difsel).label(label);
 		model.component("TestCase").geom("geom1").feature(difsel).set("entitydim", entitydim);
 		model.component("TestCase").geom("geom1").feature(difsel).set("add", name);
 		model.component("TestCase").geom("geom1").feature(difsel).set("subtract", subtract);
 		model.component("TestCase").geom("geom1").run(difsel);
+		difsel_c+=1;
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(difsel);
 		return model;
@@ -205,6 +207,7 @@ public class Operations
 		model.component("TestCase").geom("geom1").feature(igf).label(label);
 		model.component("TestCase").geom("geom1").feature(igf).selection("input").named(name);
 		model.component("TestCase").geom("geom1").run(igf);
+		igf_c+=1;
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(igf);
 		return model;
