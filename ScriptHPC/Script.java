@@ -439,7 +439,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	double volume_particle;
 	double volume_pard1;
 	double volume_pard2;
-	double z_proj=0;
+	double electrode_height=40;
 	
 	String adjsel="adjsel";		int adjsel_c=1;
 	String ballsel="ballsel";	int ballsel_c=1;
@@ -489,6 +489,7 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	
 	//Selection and creation of particles below zmax //
 	j=1;
+	double z_proj=0;
 	for (i=0;i<pg.num_particles();i++)
 	{	
 		// Method to compute the projection along the z-axis //
@@ -815,11 +816,16 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_electrode [A/m^2]");
 	model.component("TestCase").physics("liion").feature("bei1").label("Electrode/Electrolyte Interface");
 
-	// Separator //
-	model.component("TestCase").physics("liion").create("sep1", "Separator", 3);
-	model.component("TestCase").physics("liion").feature("sep1").selection().named("geom1_"+z.select("Separator"));
-	model.component("TestCase").physics("liion").feature("sep1").set("ElectrolyteMaterial", "mat3");
-	model.component("TestCase").physics("liion").feature("sep1").label("Separator");
+	// // Separator //
+	// model.component("TestCase").physics("liion").create("sep1", "Separator", 3);
+	// model.component("TestCase").physics("liion").feature("sep1").selection().named("geom1_"+z.select("Separator"));
+	// model.component("TestCase").physics("liion").feature("sep1").set("ElectrolyteMaterial", "mat3");
+	// model.component("TestCase").physics("liion").feature("sep1").label("Separator");
+	// Electrolyte //
+	model.component("TestCase").physics("liion").create("ice1", "Electrolyte", 3);
+	model.component("TestCase").physics("liion").feature("ice1").selection().named("geom1_"+z.select("Electrolyte"));
+	model.component("TestCase").physics("liion").feature("ice1").set("ElectrolyteMaterial", "mat3");
+	model.component("TestCase").physics("liion").feature("ice1").label("Electrolyte");
 
 	// Lithium electrode //
 	model.component("TestCase").physics("liion").create("es1", "ElectrodeSurface", 2);

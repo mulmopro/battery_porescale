@@ -1,4 +1,5 @@
 
+
 /** 
 * This class contains some operetions to built a geometry on COMSOL
 */
@@ -182,7 +183,6 @@ public class Operations
 	{
 		difsel="difsel"+String.valueOf(difsel_c);
 		model.component("TestCase").geom("geom1").create(difsel, "DifferenceSelection");
-		model.component("TestCase").geom("geom1").feature(difsel).label(label);
 		model.component("TestCase").geom("geom1").feature(difsel).set("entitydim", entitydim);
 		model.component("TestCase").geom("geom1").feature(difsel).set("add", name);
 		model.component("TestCase").geom("geom1").feature(difsel).set("subtract", subtract);

@@ -1,2 +1,0 @@
-Geometry geom1: Dimension 2: Boundary 104
-Geometry geom1: Dimension 1: Edges 335, 339
