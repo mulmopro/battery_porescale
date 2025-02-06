@@ -1,4 +1,4 @@
-Half-cell type == cathode
+Half-cell type == anode
 Automatic == yes
 Time range == range(0,0.001/C_rate,0.95/C_rate)
 Refinement level (1=Extremely fine; 9=Extremely coarse) == 4

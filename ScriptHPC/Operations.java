@@ -13,6 +13,7 @@ public class Operations
 	String blk="blk";			private int blk_c=1;
 	String boxsel="boxsel";		private int boxsel_c=1;
 	String comsel="comsel";		private int comsel_c=1;
+	String cmd="cmd";			private int cmd_c=1;
 	String copy="copy";			private int copy_c=1;
 	String del="del";			private int del_c=1;
 	String difsel="difsel";		private int difsel_c=1;
@@ -28,6 +29,7 @@ public class Operations
 	String sca="sca";			private int sca_c=1;
 	String sel="sel";			private int sel_c=1;
 	String uni="uni";			private int uni_c=1;
+	String unisel="unisel";		private int unisel_c=1;
 	
 	public Model AdjacentSelection (Model model, String label, String [] name, int entitydim, int outputdim, boolean interior, boolean exterior, String selshow, boolean add)
 	{
@@ -63,9 +65,9 @@ public class Operations
 		model.component("TestCase").geom("geom1").feature(ballsel).set("condition", condition);
 		model.component("TestCase").geom("geom1").feature(ballsel).set("selshow", selshow);
 		model.component("TestCase").geom("geom1").run(ballsel);
+		ballsel_c+=1;
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(ballsel);
-		ballsel_c+=1;
 		return model;
 	}
 	
@@ -127,6 +129,19 @@ public class Operations
 		return model;
 	}
 	
+	public Model CompositeDomain (Model model, String label, String name, boolean add)
+	{
+		cmd="cmd"+String.valueOf(cmd_c);
+		model.component("TestCase").geom("geom1").create(cmd, "CompositeDomains");
+		model.component("TestCase").geom("geom1").feature(cmd).label(label);
+		model.component("TestCase").geom("geom1").feature(cmd).selection("input").named(name);
+		model.component("TestCase").geom("geom1").run(cmd);
+		cmd_c+=1;
+		if (add)
+			model.component("TestCase").geom("geom1").nodeGroup(grp).add(cmd);
+		return model;
+	}
+	
 	public Model Copy (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add)
 	{
 		copy="copy"+String.valueOf(copy_c);
@@ -171,10 +186,12 @@ public class Operations
 		model.component("TestCase").geom("geom1").feature(difsel).set("add", name);
 		model.component("TestCase").geom("geom1").feature(difsel).set("subtract", subtract);
 		model.component("TestCase").geom("geom1").run(difsel);
+		difsel_c+=1;
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(difsel);
 		return model;
 	}
+	
 	public Model Ellipsoide (Model model, String label, double x1, double y1, double z1, double x2, double y2, double z2, boolean add)
 	{
 		elp="elp"+String.valueOf(elp_c);
@@ -205,6 +222,7 @@ public class Operations
 		model.component("TestCase").geom("geom1").feature(igf).label(label);
 		model.component("TestCase").geom("geom1").feature(igf).selection("input").named(name);
 		model.component("TestCase").geom("geom1").run(igf);
+		igf_c+=1;
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(igf);
 		return model;
@@ -239,7 +257,7 @@ public class Operations
 		model.component("TestCase").geom("geom1").create(intsel, "IntersectionSelection");
 		model.component("TestCase").geom("geom1").feature(intsel).label(label);
 		model.component("TestCase").geom("geom1").feature(intsel).set("entitydim", entitydim);
-		model.component("TestCase").geom("geom1").feature(intsel).set("input",name);
+		model.component("TestCase").geom("geom1").feature(intsel).set("input", name);
 		model.component("TestCase").geom("geom1").feature(intsel).set("selshow", selshow);
 		model.component("TestCase").geom("geom1").run(intsel);
 		intsel_c+=1;
@@ -354,5 +372,20 @@ public class Operations
 		if (add)
 			model.component("TestCase").geom("geom1").nodeGroup(grp).add(uni);
 		return model;
+	}
+	
+	public Model UnionSelection (Model model, String label, String [] name, int entitydim, String selshow, boolean add)
+	{
+		unisel="unisel"+String.valueOf(unisel_c);
+		model.component("TestCase").geom("geom1").create(unisel, "UnionSelection");
+		model.component("TestCase").geom("geom1").feature(unisel).label(label);
+		model.component("TestCase").geom("geom1").feature(unisel).set("entitydim", entitydim);
+		model.component("TestCase").geom("geom1").feature(unisel).set("input", name);
+		model.component("TestCase").geom("geom1").feature(unisel).set("selshow", selshow);
+		model.component("TestCase").geom("geom1").run(unisel);
+		unisel_c+=1;
+		if (add)
+			model.component("TestCase").geom("geom1").nodeGroup(grp).add(unisel);
+		return model;		
 	}
 }
