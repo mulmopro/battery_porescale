@@ -4,7 +4,7 @@
 
 public class Zone
 {
-	private int num=20;
+	private int num=50;
 	private int counter=0;
 	private int i=0;
 	private String [] name=new String[num];

@@ -71,6 +71,7 @@ class Operations
 	public String blk="blk";			private int blk_c=1;
 	public String boxsel="boxsel";		private int boxsel_c=1;
 	public String comsel="comsel";		private int comsel_c=1;
+	public String cmd="cmd";			private int cmd_c=1;
 	public String copy="copy";			private int copy_c=1;
 	public String del="del";			private int del_c=1;
 	public String difsel="difsel";		private int difsel_c=1;
@@ -86,6 +87,7 @@ class Operations
 	public String sca="sca";			private int sca_c=1;
 	public String sel="sel";			private int sel_c=1;
 	public String uni="uni";			private int uni_c=1;
+	public String unisel="unisel";		private int unisel_c=1;
 
 	public Model AdjacentSelection 
 	(Model model, String label, String [] name, int entitydim, int outputdim, boolean interior, boolean exterior, String selshow, boolean add) 
@@ -96,6 +98,7 @@ class Operations
 	public Model Block(Model model, String label, String base, String sizex, String sizey, String sizez, String posx, String posy, String posz, boolean add) {return model;}
 	public Model BoxSelection (Model model, String label, int entitydim, String condition, String [] x, String inputent, String name, String selshow, boolean add) {return model;}
 	public Model ComplementSelection (Model model, String label, String [] name, int entitydim, boolean add) {return model;}
+	public Model CompositeDomain (Model model, String label, String name, boolean add) {return model;}
 	public Model Copy (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add) {return model;}
 	public Model Delete (Model  model, String label, String name, int type, boolean add) {return model;}
 	public Model DifferenceSelection (Model model, String label, String [] name, String [] subtract, int entitydim, boolean add) {return model;}
@@ -111,6 +114,7 @@ class Operations
 	public Model Scale (Model model, String lable, String name, String ScaleFactor, boolean add) {return model;}
 	public Model Selection (Model model, String label, String name, String selshow, boolean add) {return model;}
 	public Model Union (Model model, String label, String name, boolean keep, boolean intbnd, boolean add) {return model;}
+	public Model UnionSelection (Model model, String label, String [] name, int entitydim, String selshow, boolean add)  {return model;}
 }
 
 class Materials
@@ -581,18 +585,13 @@ public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry 
 	model=op.BoxSelection (model, "Remove Details 1", 3, "intersects", 
 	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","-zmax","+zmax*1.1"}, "all", "", "on", false);
 
-	model=op.ComplementSelection(model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
-
-	model=op.AdjacentSelection(model, "Remove Details 3", new String[]{op.comsel}, 3, 2, true, true, "on", false);
-	tmp=op.adjsel;
-
-	model=op.BallSelection(model, "Remove Details 4", "0", "0", "zmin-cc_thickness", "all", 3, "intersects", "off", false);
-
-	model=op.AdjacentSelection(model, "Remove Details 5", new String[]{op.ballsel}, 3, 2, false, true, "off", false);
-
-	model=op.DifferenceSelection(model, "Remove Details 6",  new String[]{tmp},  new String[]{op.adjsel}, 2, false);
-
-	model=op.IgnoreFaces(model, "Remove Details 7", op.difsel, false);
+	model=op.ComplementSelection (model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
+	
+	model=op.BallSelection (model, "Remove Details 3", "0", "0", "zmax*0.99", "all", 3, "intersects", "off", false);
+	
+	model=op.UnionSelection (model, "Remove Details 4", new String[]{op.comsel, op.ballsel}, 3, "off", false);
+	
+	model=op.CompositeDomain (model, "Remove Details 5", op.unisel, false);
 
 	// Selection and renaming of the different zones of the system //
 	
