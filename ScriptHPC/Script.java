@@ -791,6 +791,7 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").feature("ec1").set("Its", "-I_C");
 	model.component("TestCase").physics("liion").feature("ec1").set("phis0init", "mat1.elpot.Eeq_int1(cs0/csmax)");
 	model.component("TestCase").physics("liion").feature("ec1").label("Electrode-CC");
+
 	
 	// 
 	if(cathode)
@@ -805,6 +806,14 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 		model.component("TestCase").physics("liion").feature("pcb1").set("epsl", "eps_l_b");
 		model.component("TestCase").physics("liion").feature("pcb1").set("ElectricCorrModel", "NoCorr");
 		model.component("TestCase").physics("liion").feature("pcb1").label("Electrolyte + CBD");
+	} 
+	else
+	{
+		// Electrolyte //
+		model.component("TestCase").physics("liion").create("ice1", "Electrolyte", 3);
+		model.component("TestCase").physics("liion").feature("ice1").selection().named("geom1_"+z.select("Electrolyte"));
+		model.component("TestCase").physics("liion").feature("ice1").set("ElectrolyteMaterial", "mat3");
+		model.component("TestCase").physics("liion").feature("ice1").label("Electrolyte");
 	}
 	
 	// Electrode-Electrolyte interface //
@@ -815,17 +824,6 @@ public static Model PhysicsDefinition(Model model, Zone z, boolean cathode) {
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
 	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_electrode [A/m^2]");
 	model.component("TestCase").physics("liion").feature("bei1").label("Electrode/Electrolyte Interface");
-
-	// // Separator //
-	// model.component("TestCase").physics("liion").create("sep1", "Separator", 3);
-	// model.component("TestCase").physics("liion").feature("sep1").selection().named("geom1_"+z.select("Separator"));
-	// model.component("TestCase").physics("liion").feature("sep1").set("ElectrolyteMaterial", "mat3");
-	// model.component("TestCase").physics("liion").feature("sep1").label("Separator");
-	// Electrolyte //
-	model.component("TestCase").physics("liion").create("ice1", "Electrolyte", 3);
-	model.component("TestCase").physics("liion").feature("ice1").selection().named("geom1_"+z.select("Electrolyte"));
-	model.component("TestCase").physics("liion").feature("ice1").set("ElectrolyteMaterial", "mat3");
-	model.component("TestCase").physics("liion").feature("ice1").label("Electrolyte");
 
 	// Lithium electrode //
 	model.component("TestCase").physics("liion").create("es1", "ElectrodeSurface", 2);
