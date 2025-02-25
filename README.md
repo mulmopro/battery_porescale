@@ -1,5 +1,5 @@
-# battery_continuum_modelling
-Repository for simulation templates regarding continuum modelling of batteries.
+# battery_porescale
+Repository for simulation templates regarding electrode-scale modelling of batteries.
 
 ## Comsol Battery Half Cell
 
