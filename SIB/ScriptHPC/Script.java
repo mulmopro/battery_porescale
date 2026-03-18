@@ -1,0 +1,1316 @@
+// -------------- LITHIUM BATTERIES HALF CELL MODEL -------------- //
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.File;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+
+
+import com.comsol.model.*;
+import com.comsol.model.util.*;
+
+
+class ParticlesGeometry
+{
+    private int numparticles;				    	public int num_particles() {return numparticles;}
+    private double [] pos_x=new double[10000];		public double x_pos(int index) {return pos_x[index];}
+    private double [] pos_y=new double[10000];		public double y_pos(int index) {return pos_y[index];}
+    private double [] pos_z=new double[10000];		public double z_pos(int index) {return pos_z[index];}
+    private double [] dim_x=new double[10000];		public double x_dim(int index) {return dim_x[index];}
+    private double [] dim_y=new double[10000];		public double y_dim(int index) {return dim_y[index];}
+    private double [] dim_z=new double[10000];		public double z_dim(int index) {return dim_z[index];}
+    private double [] rot_x=new double[10000];		public double x_rot(int index) {return rot_x[index];}
+    private double [] rot_y=new double[10000];		public double y_rot(int index) {return rot_y[index];}
+    private double [] rot_z=new double[10000];		public double z_rot(int index) {return rot_z[index];}
+	private int i=0;								public double zproj=0;	
+	private int j=0;	private int k=0;
+
+	public void Read(String [] line) {}
+	public double Zprojection (double x_rot, double y_rot, double x_dim, double y_dim, double z_dim) {return zproj;}
+}
+
+class Tolerance
+{
+	public String kin="yes";
+	public String cbd="yes";
+	public String time="range(0,0.001/C_rate,0.95/C_rate)";
+	public int refinement=4;
+	public String diff="yes";
+	public String equp="yes";
+	public String auto="yes";
+	public double cut_tol;
+	public double fin_tol;
+	public double mesh_tol;
+	public double imp_tol;
+	public double vol_tol;
+	
+	public void setup()throws IOException{}
+}
+
+class Zone
+{
+	private int num;
+	private int counter;
+	private int i;
+	private String [] name=new String[num];
+	private String [] zone=new String[num];
+	
+	public void define(String text1, String text2){}
+	public void replace(String text1, String text2){}
+	public String select(String text) {return zone[i];}
+}
+
+class Operations
+{
+	public String adjsel="adjsel";		private int adjsel_c=1;
+	public String ballsel="ballsel";	private int ballsel_c=1;
+	public String blk="blk";			private int blk_c=1;
+	public String boxsel="boxsel";		private int boxsel_c=1;
+	public String comsel="comsel";		private int comsel_c=1;
+	public String cmd="cmd";			private int cmd_c=1;
+	public String copy="copy";			private int copy_c=1;
+	public String del="del";			private int del_c=1;
+	public String difsel="difsel";		private int difsel_c=1;
+	public String elp="elp";			private int elp_c=1;
+	public String grp="grp";			private int grp_c=1;
+	public String igf="igf";			private int igf_c=1;
+	public String imp="imp";			private int imp_c=1;
+	public String intsel="intsel";		private int intsel_c=1;
+	public String mpart="mpart";		private int mpart_c=1;
+	public String move="move";			private int move_c=1;
+	public String pard="pard";			private int pard_c=1;
+	public String rot="rot";			private int rot_c=1;
+	public String sca="sca";			private int sca_c=1;
+	public String sel="sel";			private int sel_c=1;
+	public String uni="uni";			private int uni_c=1;
+	public String unisel="unisel";		private int unisel_c=1;
+
+	public Model AdjacentSelection 
+	(Model model, String label, String [] name, int entitydim, int outputdim, boolean interior, boolean exterior, String selshow, boolean add) 
+	{return model;}
+	public Model BallSelection
+	(Model model, String label, String posx, String posy, String posz, String inputent, int entitydim, String condition, String selshow, boolean add)
+	{return model;}
+	public Model Block(Model model, String label, String base, String sizex, String sizey, String sizez, String posx, String posy, String posz, boolean add) {return model;}
+	public Model BoxSelection (Model model, String label, int entitydim, String condition, String [] x, String inputent, String name, String selshow, boolean add) {return model;}
+	public Model ComplementSelection (Model model, String label, String [] name, int entitydim, boolean add) {return model;}
+	public Model CompositeDomain (Model model, String label, String name, boolean add) {return model;}
+	public Model Copy (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add) {return model;}
+	public Model Delete (Model  model, String label, String name, int type, boolean add) {return model;}
+	public Model DifferenceSelection (Model model, String label, String [] name, String [] subtract, int entitydim, boolean add) {return model;}
+	public Model Ellipsoide (Model model, String label, double x1, double y1, double z1, double x2, double y2, double z2, boolean add) {return model;}
+	public Model Group (Model model, String label, String place) {return model;}
+	public Model IgnoreFaces(Model model, String label, String name, boolean add) {return model;}
+	public Model Import (Model model, String label, String stl, boolean formsolid, double tol, boolean add) {return model;}
+	public Model IntersectionSelection (Model model, String label, String [] name, int entitydim, String selshow, boolean add) {return model;}
+	public double MeasureCalc (Model model, String name, int level, int type) {return 0;}
+	public Model Move (Model model, String label, String name, int type, String displx, String disply, String displz, boolean add) {return model;}
+	public Model PartitionDomain (Model model, String label, String partwith, String name1, int type1, String name2, int type2, double tol, boolean add) {return model;}
+	public Model Rotation (Model model, String label, String name, String ax, double x, double y, double z, double angle, boolean add) {return model;}
+	public Model Scale (Model model, String lable, String name, String ScaleFactor, boolean add) {return model;}
+	public Model Selection (Model model, String label, String name, String selshow, boolean add) {return model;}
+	public Model Union (Model model, String label, String name, boolean keep, boolean intbnd, boolean add) {return model;}
+	public Model UnionSelection (Model model, String label, String [] name, int entitydim, String selshow, boolean add)  {return model;}
+}
+
+class Materials
+{
+	String mat="mat";					private int mat_c=1;
+	private String [] material=new String[20];	private int i=0	;
+	private String intp="int";					private int intp_c=1;
+	private int counter=0;
+	String tmp="tmp";
+	
+	public Model newMaterial(Model model, String label, String [] addInput){return model;}
+	
+	public Model newFunc(Model model, String label, String group, String funcname, String [][] table, String interp, String extrap, String fununit, String argunit)
+	{return model;}
+	
+	public Model setup(Model model, String label, String group, String [] set, String [] value, boolean tensor)
+	{return model;}
+
+	public Model newProperty(Model model, String label, String group, String property, String [] addInput)
+	{return model;}
+
+	public Model geomSelection(Model model, String label, String name)
+	{return model;}
+}
+
+class Mesh
+{
+	String ftri="ftri";				private int ftri_c=1;
+	String ftet="ftet";				private int ftet_c=1;
+	private String last_op="tmp";	
+	
+	public Model freeTriangular(Model model, String label, int Refinement, int singleface) {return model;}
+	public Model freeTetrahedral(Model model, String label, String zone, int Refinement) {return model;}
+	public Model error(Model model) throws IOException {return model;}
+}
+	
+public class Script{
+
+public static void main(String[] args) throws IOException
+{
+	int i=0;
+	int k=0;
+	int N=1;
+	double N_point=5;
+
+	boolean kinetic_const = true;
+	boolean cbd = true;
+	boolean diffusion = true;
+	boolean eqpot = true;
+	
+	// Definition of the tollerances and setup //
+	Tolerance tol;
+	tol = new Tolerance();
+	tol.setup();
+	
+	if (tol.diff.contains("y"))
+		diffusion=true;
+	else
+		diffusion=false;
+	if (tol.equp.contains("ALL"))
+		eqpot=false;
+	else
+		eqpot=true;
+	if (tol.kin.contains("y"))
+		kinetic_const=true;
+	else
+		kinetic_const=false;
+	if (tol.cbd.contains("yes"))
+		cbd=true;
+	else
+		cbd=false;
+
+	String currentDir = new File(".").getAbsolutePath();
+	// Remove the trailing '.' character
+	currentDir = currentDir.substring(0, currentDir.length() - 1);
+	// Now 'currentDir' holds the path of the current directory
+	System.out.println("Current Directory: " + currentDir);
+
+	String folder = "Parameters/";
+	
+	// Model creation //
+	Model model = ModelUtil.create("Model");
+
+	model.component().create("TestCase", true);
+
+	// Time interval //
+	String time=tol.time;
+	
+	// Zones definition //
+	Zone z;
+	z=new Zone();
+
+	// Parameters //
+	String paramFile="";
+	String condFile="";
+	String geomFile="";
+
+	paramFile = "chemico_physical_parameters.txt";
+	condFile = "operative_conditions.txt";
+	geomFile = "geometric_details.txt";
+
+	model = ParameterValues(model, currentDir, folder, paramFile, condFile, geomFile);
+	System.out.println("Parameter Values loaded");
+
+	// Geometry //
+	ParticlesGeometry pg;
+	pg = new ParticlesGeometry();
+	String l1="";
+	String partFile="";
+
+	partFile = "geometry_anode.txt";
+
+	String filePath6 = currentDir + folder + partFile;
+	BufferedReader br1 = new BufferedReader(new FileReader(filePath6));
+	do{
+		l1=br1.readLine();
+		String [] line=l1.split(" ",0);
+		pg.Read(line);
+		i+=1;
+	}while(l1.equals("EOF")==false);
+	
+	// Saving zmax and the scale factor//
+	String filePath5 = currentDir + folder + geomFile;
+	String l7="";
+	String ZMax="";
+	String sep ="";
+	double SF = 1;
+
+	BufferedReader br7 = new BufferedReader(new FileReader(filePath5));
+	while ((l7 = br7.readLine()) != null) {
+		if (l7.contains("zmax")) {
+			String[] line7 = l7.split(" ", 0);
+			// Deletion of [m]
+			ZMax = line7[1].replaceAll("[^0-9.E-]", ""); 
+		}
+		if (l7.contains("sf")){
+			String [] line7 = l7.split(" ",0);
+			SF = Double.parseDouble(line7[1]);
+		}
+	}
+
+	ParticlesGeometry pg2;
+	pg2 = new ParticlesGeometry();
+	String l13="";
+	String partFile2="";
+	i=0;
+
+	partFile2 = "geometry_cathode.txt";
+
+	String filePath13 = currentDir + folder + partFile2;
+	BufferedReader br13 = new BufferedReader(new FileReader(filePath13));
+	do{
+		l13=br13.readLine();
+		String [] line=l13.split(" ",0);
+		pg2.Read(line);
+		i+=1;
+	}while(l13.equals("EOF")==false);
+	
+	model = GeometryConstruction(model, z, pg, pg2, tol, ZMax, SF);
+	System.out.println("Geometry Construction done");
+
+	// Materials //
+	String [][] ExpVoltage_Anode=new String[10000][2];
+	if (eqpot)
+	{
+		N = Integer.parseInt(tol.equp);
+		N_point = Double.parseDouble(tol.equp); 
+	}
+	String [][] Voltage_Anode=new String[N][2];
+	double dt = 0.01;
+	double dt1 = 0.01;
+	
+	String l2="";
+	String eeqFile = "Eeq_Anode.txt";
+	String filePath7 = currentDir + folder + eeqFile;
+	BufferedReader br2 = new BufferedReader(new FileReader(filePath7));
+	int numlines=0;
+	i=0;
+	while((l2=br2.readLine())!=null)
+	{
+		String [] line2=new String[2];
+		line2=l2.split(" ",0);
+		ExpVoltage_Anode[i][0]=line2[0];
+		ExpVoltage_Anode[i][1]=line2[1];
+		i+=1;
+	}
+	numlines=i;
+	// Check the desired number of points is less than the available, otherwise use all the input //
+	if (N >= numlines)
+	 	eqpot=false;
+
+	// To save only a certain number of points //
+	if (eqpot) 
+	{
+		i=1;k=1;
+		Voltage_Anode[0][0]=ExpVoltage_Anode[0][0];
+		Voltage_Anode[0][1]=ExpVoltage_Anode[0][1];
+		dt1 = (Double.parseDouble(ExpVoltage_Anode [numlines-1][0])-Double.parseDouble(ExpVoltage_Anode[0][0]))/(N_point-1);
+		dt = dt1;
+		do{
+			if(dt>Double.parseDouble(ExpVoltage_Anode[i][0]) && dt<Double.parseDouble(ExpVoltage_Anode[i+1][0]))
+			{
+				Voltage_Anode[k][0]=ExpVoltage_Anode[i][0];
+				Voltage_Anode[k][1]=ExpVoltage_Anode[i][1];
+				dt=dt+dt1;
+				k+=1;
+			}
+			i+=1;
+		}while(i<(numlines-1) && dt<1.0);
+		Voltage_Anode[N-1][0]=ExpVoltage_Anode[numlines-1][0];
+		Voltage_Anode[N-1][1]=ExpVoltage_Anode[numlines-1][1];	
+	}
+
+	// Cathode //
+	String [][] ExpVoltage_Cathode=new String[10000][2];
+	if (eqpot)
+	{
+		N = Integer.parseInt(tol.equp);
+		N_point = Double.parseDouble(tol.equp); 
+	}
+	String [][] Voltage_Cathode=new String[N][2];
+	
+	String l21="";
+	String eeqFile2 = "Eeq_Cathode.txt";
+	String filePath71 = currentDir + folder + eeqFile2;
+	BufferedReader br21 = new BufferedReader(new FileReader(filePath71));
+	numlines=0;
+	i=0;
+	while((l21=br21.readLine())!=null)
+	{
+		String [] line21=new String[2];
+		line21=l21.split(" ",0);
+		ExpVoltage_Cathode[i][0]=line21[0];
+		ExpVoltage_Cathode[i][1]=line21[1];
+		i+=1;
+	}
+	numlines=i;
+	// Check the desired number of points is less than the available, otherwise use all the input //
+	if (N >= numlines)
+	 	eqpot=false;
+
+	// To save only a certain number of points //
+	if (eqpot) 
+	{
+		i=1;k=1;
+		Voltage_Cathode[0][0]=ExpVoltage_Cathode[0][0];
+		Voltage_Cathode[0][1]=ExpVoltage_Cathode[0][1];
+		dt1 = (Double.parseDouble(ExpVoltage_Cathode [numlines-1][0])-Double.parseDouble(ExpVoltage_Cathode[0][0]))/(N_point-1);
+		dt = dt1;
+		do{
+			if(dt>Double.parseDouble(ExpVoltage_Cathode[i][0]) && dt<Double.parseDouble(ExpVoltage_Cathode[i+1][0]))
+			{
+				Voltage_Cathode[k][0]=ExpVoltage_Cathode[i][0];
+				Voltage_Cathode[k][1]=ExpVoltage_Cathode[i][1];
+				dt=dt+dt1;
+				k+=1;
+			}
+			i+=1;
+		}while(i<(numlines-1) && dt<1.0);
+		Voltage_Cathode[N-1][0]=ExpVoltage_Cathode[numlines-1][0];
+		Voltage_Cathode[N-1][1]=ExpVoltage_Cathode[numlines-1][1];	
+	}
+
+	String [][] Dsn=new String[10000][2];
+	if (diffusion) {
+		String l3="";
+		String diffFile = "Ds_n.txt";
+		String filePath8 = currentDir + folder + diffFile;
+		BufferedReader br3 = new BufferedReader(new FileReader(filePath8));
+		i=0;
+		while((l3=br3.readLine())!=null)
+		{
+			String [] line3=new String[2];
+			line3=l3.split(" ",0);
+			Dsn[i][0]=line3[0];
+			Dsn[i][1]=line3[1];
+			i+=1;
+		}
+	}
+
+	String [][] k_p=new String[10000][2];
+	String [][] k_n=new String[10000][2];
+	if (kinetic_const) {
+	 	String l8="";
+	 	String l9="";
+	 	String kinFileP = "k_p.txt";
+	 	String kinFileN = "k_n.txt";
+	 	String filePath14 = currentDir + folder + kinFileP;
+	 	String filePath15 = currentDir + folder + kinFileN;
+		BufferedReader br8= new BufferedReader(new FileReader(filePath14));
+		BufferedReader br9= new BufferedReader(new FileReader(filePath15));
+		i=0;
+		while((l8=br8.readLine())!=null)
+		{
+			String [] line8=new String[2];
+			line8=l8.split(" ",0);
+	 		k_p[i][0]=line8[0];
+			k_p[i][1]=line8[1];
+			i+=1;
+		}
+		i=0;
+		while((l9=br9.readLine())!=null)
+		{	
+			String [] line9=new String[2];
+			line9=l9.split(" ",0);
+			k_n[i][0]=line9[0];
+			k_n[i][1]=line9[1];
+			i+=1;
+		}
+	}
+
+	String [][] Dsp=new String[10000][2];
+	if (diffusion) {
+		String l31="";
+		String diffFile = "Ds_p.txt";
+		String filePath81 = currentDir + folder + diffFile;
+		BufferedReader br31 = new BufferedReader(new FileReader(filePath81));
+		i=0;
+		while((l31=br31.readLine())!=null)
+		{
+			String [] line31=new String[2];
+			line31=l31.split(" ",0);
+			Dsp[i][0]=line31[0];
+			Dsp[i][1]=line31[1];
+			i+=1;
+		}
+	}
+
+	String [][] D_L=new String[10000][2];
+	String l4="";
+	String diffLFile = "D_L.txt";
+	String filePath9 = currentDir + folder + diffLFile;
+	BufferedReader br4 = new BufferedReader(new FileReader(filePath9));
+	i=0;
+	while((l4=br4.readLine())!=null)
+	{
+		String [] line4=new String[2];
+		line4=l4.split(" ",0);
+		D_L[i][0]=line4[0];
+		D_L[i][1]=line4[1];
+		i+=1;
+	}
+
+	String [][] sigma_L=new String[10000][2];
+	String l5="";
+	String sigmaLFile = "sigma_L.txt";
+	String filePath10 = currentDir + folder + sigmaLFile;
+	BufferedReader br5 = new BufferedReader(new FileReader(filePath10));
+	i=0;
+	while((l5=br5.readLine())!=null)
+	{
+		String [] line5=new String[2];
+		line5=l5.split(" ",0);
+		sigma_L[i][0]=line5[0];
+		sigma_L[i][1]=line5[1];
+		i+=1;
+	}
+
+	String CsMaxN="";
+	String CsMaxP="";
+	String l6="";
+	String filePath11 = currentDir + folder + paramFile;
+	BufferedReader br6 = new BufferedReader(new FileReader(filePath11));
+	while((l6=br6.readLine())!=null) {
+		if (l6.contains("csmax_n")) {
+			String [] line6 = l6.split(" ",0);
+			CsMaxN = line6[1];
+		}
+		if(l6.contains("csmax_p")){
+			String [] line6 = l6.split(" ",0);
+			CsMaxP = line6[1];
+		}
+	}
+
+	// Materials //
+	if (eqpot)
+		if (diffusion)
+			model = MaterialsDefinition(model, z, Voltage_Anode, Voltage_Cathode, Dsn, Dsp, D_L, sigma_L, CsMaxN, CsMaxP, diffusion);
+		else
+			model = MaterialsDefinition(model, z, Voltage_Anode, Voltage_Cathode, D_L, D_L, D_L, sigma_L, CsMaxN, CsMaxP, diffusion);
+	else
+		if (diffusion)
+			model = MaterialsDefinition(model, z, ExpVoltage_Anode, ExpVoltage_Cathode, Dsn, Dsp, D_L, sigma_L, CsMaxN, CsMaxP, diffusion);
+		else
+			model = MaterialsDefinition(model, z, ExpVoltage_Anode, ExpVoltage_Cathode, D_L, D_L, D_L, sigma_L, CsMaxN, CsMaxP, diffusion);
+
+	System.out.println("Materials Definition done");
+
+	// Physics //
+	model = PhysicsDefinition(model, z, kinetic_const, cbd, k_n, k_p);
+	System.out.println("Physics Definition done");
+	
+	// Mesh construction //
+	if (tol.auto.contains("y"))
+	{
+		model = MeshConstruction(model, z, tol.refinement);
+		System.out.println("Mesh Construction done");
+	}
+	
+	// Case study //
+	model = TestStudy(model, time, tol);
+	System.out.println("TestStudy created");
+}
+
+public static Model ParameterValues(Model model, String currentDir, String folder, String paramFile, String condFile, String geomFile) {
+		
+	// Chemico-physical parameters //
+	model.param().label("Chemico-physical parameters ");
+	String filePath3 = currentDir + folder + paramFile;
+	model.param().loadFile(filePath3);
+
+	// Operative Conditions //
+	model.param().create("par2");
+	model.param("par2").label("Operative Conditions");
+	String filePath4 = currentDir + folder + condFile;
+	model.param("par2").loadFile(filePath4);
+
+	// Geometric details //
+	model.param().create("par3");
+	model.param("par3").label("Geometric details");
+	String filePath5 = currentDir + folder + geomFile;
+	model.param("par3").loadFile(filePath5);
+
+	
+	return model;
+}
+
+public static Model GeometryConstruction(Model model, Zone z, ParticlesGeometry pg, ParticlesGeometry pg2, Tolerance tol, String ZMax, double SF) {
+		
+	int i=1;
+	int b=0;
+	int d=1;
+	int j=0;
+	
+	double volume_pard;
+	double volume_block;
+	double volume_block2;
+	double area_block;
+	double volume_particle;
+	double volume_pard1;
+	double volume_pard2;
+	double electrode_height=40;
+	
+	String adjsel="adjsel";		int adjsel_c=1;
+	String ballsel="ballsel";	int ballsel_c=1;
+	String blk="blk";			int blk_c=1;
+	String comsel="comsel";		int comsel_c=1;
+	String copy="copy";			int copy_c=1;
+	String del="del";			int del_c=1;
+	String dif="dif";			int dif_c=1;
+	String elp="elp";			int elp_c=1;
+	String grp="grp";			int grp_c=1;
+	String imp="imp";			int imp_c=1;
+	String mpart="mpart";		int mpart_c=1;
+	String move="move";			int move_c=1;
+	String pard="pard";			int pard_c=1;
+	String rot="rot";			int rot_c=1;
+	String sca="sca";			int sca_c=1;
+	String sel="sel";			int sel_c=1;
+	String uni="uni";			int uni_c=1;
+	
+	String tmp;
+	String ControlBlock;
+	
+	String [] Particles=new String[pg.num_particles()];
+	String [] Particles2=new String[pg2.num_particles()];
+	
+	boolean formsolid=true;			// Set this flag to "true" to form a solid from a stl geometry //
+	boolean creation=true;			// Set this flag to "true" to create the particles directly in COMSOL //
+	boolean CBD=false;				// Set this flag to "true" to consider the carbon binder domain //
+	boolean volume_control=true;	// Set this flag to "true" to control the portion of each particle inside the electrolyte //
+	boolean all_particles=true;		// Set this flag to "true" to create all the particles before cutting the system //
+	
+	Operations op;
+	op=new Operations();
+	
+	model.component("TestCase").geom().create("geom1",3);
+	
+	// Definition of the block that will become the final system //
+	model=op.Block(model, "Block 0", "center", "xmax/sf", "ymax/sf", "2*zmax/sf+sep_thickness/sf-2*zmin/sf", "0", "0", "((2*zmax+sep_thickness)*0.5)/sf", false);
+	tmp=op.blk;
+
+	// Selection and renaming of the System //
+	model=op.Selection(model, "Initial Domain", op.blk, "all", false);
+	z.define(op.sel, "Initial Domain");
+	
+	volume_block=op.MeasureCalc(model, z.select("Initial Domain"), 3, 0);
+
+	model=op.Group(model, "All Particles Electrode 1", z.select("Initial Domain"));
+	
+	//Selection and creation of particles below zmax //
+	j=1;
+	double z_proj=0;
+	for (i=0;i<pg.num_particles();i++)
+	{	
+		// Method to compute the projection along the z-axis //
+		z_proj = pg.Zprojection(pg.x_rot(i), pg.y_rot(i), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i));
+		// Checking whether the particle is below zmax //
+		if ((pg.z_pos(i)+z_proj)*SF<(Double.parseDouble(ZMax))*0.99)
+		{
+			// Creation of the particle //
+			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(j), pg.x_dim(i), pg.y_dim(i), pg.z_dim(i), pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), true);
+				
+			// Selection and renaming of the particle //
+			model=op.Selection(model, "Particle "+String.valueOf(i+1), op.elp, "off", true);
+			
+			// Rotation of the particle //
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"x", op.sel, "x", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.x_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"y", op.sel, "y", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.y_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"z", op.sel, "z", pg.x_pos(i), pg.y_pos(i), pg.z_pos(i), pg.z_rot(i), true);
+			j=j+1;
+		}
+	}
+	System.out.println("pg particles = " + pg.num_particles());
+
+	model=op.Group(model, "All Particles Electrode 2", z.select("Initial Domain"));
+	double zmaxVal = model.param().evaluate("zmax");
+	double zminVal = model.param().evaluate("zmin");
+	double sepVal = model.param().evaluate("sep_thickness");
+	double sfVal   = model.param().evaluate("sf");
+	//Selection and creation of particles below zmax //
+	j=pg.num_particles()+1;
+	for (i=0;i<pg2.num_particles();i++)
+	{	
+		z_proj = pg2.Zprojection(pg2.x_rot(i), pg2.y_rot(i), pg2.x_dim(i), pg2.y_dim(i), pg2.z_dim(i));
+		if ((pg2.z_pos(i)+z_proj)*SF<(Double.parseDouble(ZMax)))
+		{
+		// Creation of the particle //
+			model=op.Ellipsoide(model, "Ellipsoide "+String.valueOf(j), pg2.x_dim(i), pg2.y_dim(i), pg2.z_dim(i), pg.x_pos(i), pg2.y_pos(i), (2*zmaxVal+sepVal)/sfVal-pg2.z_pos(i), true);
+				
+		// Selection and renaming of the particle //
+			model=op.Selection(model, "Particle "+String.valueOf(j+1), op.elp, "off", true);
+			
+		// Rotation of the particle //
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"x", op.sel, "x", pg2.x_pos(i), pg2.y_pos(i), (2*zmaxVal+sepVal)/sfVal-pg2.z_pos(i), -pg2.x_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"y", op.sel, "y", pg2.x_pos(i), pg2.y_pos(i), (2*zmaxVal+sepVal)/sfVal-pg2.z_pos(i), pg2.y_rot(i), true);
+			model=op.Rotation(model, "Rotate "+String.valueOf(j)+"z", op.sel, "z", pg2.x_pos(i), pg2.y_pos(i), (2*zmaxVal+sepVal)/sfVal-pg2.z_pos(i), pg2.z_rot(i), true);
+			j=j+1;
+		}
+	}
+
+	model=op.Group(model, "Geometric Operations", z.select("Initial Domain"));
+	
+	// Selection of all particles //
+	model=op.ComplementSelection(model, "All Particles Electrode 1", new String[]{z.select("Initial Domain")}, -1, true);
+	
+	// Cut and partition of the system through the particles //
+	model=op.PartitionDomain(model, "Partition Domains", "object", z.select("Initial Domain"), 0, op.comsel, 0, 1E-9, true);
+	tmp=op.pard;
+	
+	// Deletion of all particles //
+	model=op.Delete(model, "Delete "+String.valueOf(i+1), op.comsel, -1, true);
+	
+	// Copy of the system, we'll obtain system 1 and 2 //
+	model=op.Copy(model, "Copy", tmp, 1, "xmax*1.2/sf", "0", "0", true);
+	
+	// Selection of Electrolyte 1 //
+	model=op.BallSelection(model, "Electrolyte 1", "0", "0", "zmax/sf", "all", 3, "intersects", "off", true);
+	
+	// Selection of Electrode 1 //
+	model=op.AdjacentSelection(model, "Electrode Block 1", new String[]{op.ballsel}, 3, 3, false, false, "off", true);
+	
+	// Deletion of Electrolyte 1 //
+	model=op.Delete(model, "Delete Electrolyte 1", op.ballsel, 3, true);
+	
+	// Union of the particles //
+	model=op.Union(model, "Particle Union", op.del, false, false, true);
+	
+	// Selection the Electrolyte 2 //
+	model=op.BallSelection(model, "Electrolyte 2", "xmax*1.2/sf", "0", "zmax/sf", "all", 3, "intersects", "off", true);
+	
+	// Selection of Electrode 2 //
+	model=op.AdjacentSelection(model, "Electrode Block 2", new String[]{op.ballsel}, 3, 3, false, false, "off", true);
+	
+	// Deletion of Electrode 2 //
+	model=op.Delete(model, "Delete Electrode 2", op.adjsel, 3, true);
+	
+	// Move Electrolyte 2 to the original position //
+	model=op.Move(model, "Move", op.del, 3, "-xmax*1.2/sf", "0", "0", true);
+
+	
+	// In this way we had obtained two object: the electrolyte-object and the particles-object. //
+	// This step is necessary to avoid that COMSOL identify an interface between two particles that are in contact. //
+	
+	// Scaling the system from meters to micrometers //
+	model=op.Scale(model, "Scaling", z.select("Initial Domain"), "sf", true);
+	
+	// Costruction of a solid block //
+	model=op.Block(model, "Limit Block", "center", "xmax", "ymax", "sep_thickness", "0", "0", "zmax+sep_thickness*0.5", true);
+	
+	// Selection and renaming of the Limit Block //
+	model=op.Selection(model, "Limit Block Selection", op.blk, "off", true);
+	
+	// Cut and partition of the system through the block //
+	model=op.PartitionDomain(model, "System Readjustment", "object", z.select("Initial Domain"), 0, op.sel, 0, tol.cut_tol, true); 
+	
+	// Selection of the block and the cut zone //
+	model=op.BallSelection(model, "Cut Selection", "0", "0", "zmax+zmin", "all", 3, "intersects", "off", true);
+	
+	// Deletion of the block and the cut zone //
+	model=op.Delete(model, "Delete Limit Block", op.ballsel, 3, true);
+	
+	// Costruction of the block to individuate the top surface of the particles //
+	model=op.Block(model, "Current Collector Block", "center", "xmax", "ymax", "cc_thickness", "0", "0", "zmin-cc_thickness*0.5", true);
+	// Costruction of the block to individuate the top surface of the particles //
+	model=op.Block(model, "Current Collector Block 2", "center", "xmax", "ymax", "cc_thickness", "0", "0", "2*zmax+sep_thickness-cc_thickness*0.5", true);
+	
+	// Construction of the Separator //
+	model=op.Block(model, "Separator Block", "center", "xmax", "ymax", "sep_thickness", "0", "0", "zmax+sep_thickness*0.5", true);
+	
+	// Form the final union //
+	model.component("TestCase").geom("geom1").feature("fin").set("repairtoltype", "relative");
+	model.component("TestCase").geom("geom1").feature("fin").set("repairtol", tol.fin_tol);
+	model.component("TestCase").geom("geom1").run("fin");
+	i=50;
+
+	model=op.BoxSelection (model, "Remove Details 1", 3, "intersects", 
+	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","-zmax","+zmax*3"}, "all", "", "on", false);
+
+	model=op.ComplementSelection (model, "Remove Details 2", new String[]{op.boxsel}, 3, false);
+	
+	model=op.BallSelection (model, "Remove Details 3", "0", "0", "zmax*0.99", "all", 3, "intersects", "off", false);
+	String ball3 = op.ballsel;
+
+	model=op.BallSelection (model, "Remove Details 3.1", "0", "0", "zmax+sep_thickness*1.05", "all", 3, "intersects", "off", false);
+	String ball31 = op.ballsel;
+
+	model=op.UnionSelection (model, "Remove Details 4", new String[]{op.comsel, ball3, ball31}, 3, "off", false);
+	
+	model=op.CompositeDomain (model, "Remove Details 5", op.unisel, false);
+
+	// Selection and renaming of the different zones of the system //
+	
+	// Separator //
+	model=op.BallSelection(model, "Separator", "0", "0", "zmax+sep_thickness*0.5", "all", 3, "intersects", "on", false);
+	z.define(op.ballsel, "Separator");
+	
+	
+	//Anode Current Collector //
+	model=op.BallSelection(model, "Anode Current Collector", "0", "0", "zmin-cc_thickness", "all", 3, "intersects", "off", false);
+	z.define(op.ballsel,"Anode Current Collector");
+	
+	model=op.AdjacentSelection(model, "Anode Collector Boundaries", new String[]{z.select("Anode Current Collector")}, 3, 2, false, true, "off", false);
+	z.define(op.adjsel, "Anode Collector Boundaries");
+
+	//Cathode Current Collector //
+	model=op.BallSelection(model, "Cathode Current Collector", "0", "0", "2*zmax+sep_thickness-cc_thickness", "all", 3, "intersects", "off", false);
+	z.define(op.ballsel,"Cathode Current Collector");
+	
+	model=op.AdjacentSelection(model, "Cathode Collector Boundaries", new String[]{z.select("Cathode Current Collector")}, 3, 2, false, true, "off", false);
+	z.define(op.adjsel, "Cathode Collector Boundaries");
+	
+	// Electrolyte Anode Side//	
+	model=op.BallSelection(model, "Electrolyte Anode Side", "0", "0", "zmax*0.99", "all", 3, "intersects", "on", false);
+	z.define(op.ballsel, "Electrolyte Anode Side");
+	
+	model=op.AdjacentSelection(model, "Electrolyte Boundaries Anode Side", new String[]{z.select("Electrolyte Anode Side")}, 3, 2, false, true, "on", false);
+	z.define(op.adjsel, "Electrolyte Boundaries Anode Side");
+
+	// Electrolyte Cathode Side//	
+	model=op.BallSelection(model, "Electrolyte Cathode Side", "0", "0", "zmax+sep_thickness*1.05", "all", 3, "intersects", "on", false);
+	z.define(op.ballsel, "Electrolyte Cathode Side");
+	
+	model=op.AdjacentSelection(model, "Electrolyte Boundaries Cathode Side", new String[]{z.select("Electrolyte Cathode Side")}, 3, 2, false, true, "on", false);
+	z.define(op.adjsel, "Electrolyte Boundaries Cathode Side");
+
+	//tmp=z.select("Anode Current Collector");
+	
+	// Electrodes //
+	model=op.AdjacentSelection(model, "Electrodes", new String[]{z.select("Anode Current Collector"), z.select("Electrolyte Anode Side"), z.select("Separator"), z.select("Electrolyte Cathode Side"), z.select("Cathode Current Collector")}, 3, 3, false, true, "on", false);
+	z.define(op.adjsel, "Electrodes");
+
+	// Anode Half Cell //
+	model=op.BoxSelection (model, "Anode Half Cell", 3, "intersects", 
+	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","zmin","+zmax*0.99"}, "all", "", "on", false);
+	z.define(op.boxsel, "Anode Half Cell");
+	
+	// Cathode Half Cell //
+	model=op.BoxSelection (model, "Cathode Half Cell", 3, "intersects", 
+	new String[]{"-xmax/4", "xmax/4", "-ymax/4", "ymax/4","zmax+sep_thickness*1.05","2*zmax+sep_thickness*0.99"}, "all", "", "on", false);
+	z.define(op.boxsel, "Cathode Half Cell");
+
+	// Positive Electrode //
+	model=op.AdjacentSelection(model, "Positive Electrode", new String[]{z.select("Anode Current Collector"), z.select("Anode Half Cell"), z.select("Separator"), z.select("Electrolyte Cathode Side"), z.select("Cathode Current Collector"),z.select("Electrolyte Anode Side"),}, 3, 3, false, true, "on", false);
+	z.define(op.adjsel, "Positive Electrode");
+	
+	model=op.AdjacentSelection(model, "Cathode Boundaries", new String[]{z.select("Positive Electrode")}, 3, 2, false, true, "on", false);
+	z.define(op.adjsel, "Cathode Boundaries");
+	
+	model=op.IntersectionSelection(model, "Cathode Surface", new String[]{z.select("Cathode Boundaries"), z.select("Electrolyte Boundaries Cathode Side")}, 2, "on", false);
+	z.define(op.intsel, "Cathode Surface");
+
+	// Negative Electrode //
+	model=op.AdjacentSelection(model, "Negative Electrode", new String[]{z.select("Anode Current Collector"), z.select("Cathode Half Cell"), z.select("Separator"), z.select("Electrolyte Cathode Side"), z.select("Electrolyte Anode Side"), z.select("Cathode Current Collector")}, 3, 3, false, true, "on", false);
+	z.define(op.adjsel, "Negative Electrode");
+	
+	model=op.AdjacentSelection(model, "Anode Boundaries", new String[]{z.select("Negative Electrode")}, 3, 2, false, true, "on", false);
+	z.define(op.adjsel, "Anode Boundaries");
+	
+	model=op.IntersectionSelection(model, "Anode Surface", new String[]{z.select("Anode Boundaries"), z.select("Electrolyte Boundaries Anode Side")}, 2, "on", false);
+	z.define(op.intsel, "Anode Surface");
+	
+	// Interface between Cathode Particles and Current Collector //
+	model=op.IntersectionSelection(model, "Cathodic Current Collector", 
+	new String[]{z.select("Cathode Boundaries"), z.select("Cathode Collector Boundaries")}, 2, "on", false);
+	z.define(op.intsel, "Cathodic Current Collector");
+
+	// Interface between Anode Particles and Current Collector //
+	model=op.IntersectionSelection(model, "Anodic Current Collector", 
+	new String[]{z.select("Anode Boundaries"), z.select("Anode Collector Boundaries")}, 2, "on", false);
+	z.define(op.intsel, "Anodic Current Collector");
+
+	// Electrolyte and Separator //
+	model=op.ComplementSelection(model, "Electrolyte Separator", new String[]{z.select("Anode Current Collector"), z.select("Cathode Current Collector"), z.select("Electrodes")}, 3, false);
+	z.define(op.comsel, "Electrolyte Separator");
+
+	// Electrolyte //
+	model=op.ComplementSelection(model, "Electrolyte", new String[]{z.select("Anode Current Collector"), z.select("Separator"), z.select("Cathode Current Collector"), z.select("Electrodes")}, 3, false);
+	z.define(op.comsel, "Electrolyte");
+	
+	// Cell //
+	model=op.ComplementSelection(model, "Sodium-Ion Cell", new String[]{z.select("Anode Current Collector"),z.select("Cathode Current Collector")}, 3, false);
+	z.define(op.comsel, "Sodium-Ion Cell");
+	
+	// Measurement of the total Negative Electrode volume and surface //
+	volume_block=op.MeasureCalc(model, z.select("Negative Electrode"), 3, 0);
+	model.param("par3").set("Vp_n",	String.valueOf(volume_block)+" [m^3]", "Total Negative Electrode Volume");  
+
+	// Measurement of the total Positive Electrode volume and surface //
+	volume_block2=op.MeasureCalc(model, z.select("Positive Electrode"), 3, 0);
+	model.param("par3").set("Vp_p",	String.valueOf(volume_block2)+" [m^3]", "Total Positive Electrode Volume");  
+	return model;
+}
+	
+public static Model MaterialsDefinition(Model model, Zone z, String [][] Voltage_Anode, String[][] Voltage_Cathode, String [][] Dsn, String[][] Dsp, String [][] D_L, String [][] sigma_L, String CsMaxN, String CsMaxP, boolean diffusion) throws IOException {
+
+	Materials mt;
+	mt=new Materials();
+	int j=0;
+	String [] T=new String[9];
+	String [][] table;
+	boolean default_V=false;	
+
+	// New material: Cathode //
+	model=mt.newMaterial(model, "Cathode", new String[]{"temperature", "concentration"});
+	model=mt.setup(model, "Cathode", "def", 
+	new String[]{"T_ref", "T2", "csmax_p", "soc"}, 
+	new String[]{"298[K]", "min(393.15,max(T,223.15))", CsMaxP, "c/csmax_p"}, false);
+	
+	// Electrode: Diffusion coefficient //
+	if (diffusion) {
+		T=new String[]
+		{"D_int1(c)", "0", "0",
+		"0", "D_int1(c)", "0", 
+		"0", "0", "D_int1(c)"};
+		model=mt.setup(model, "Cathode", "def", new String[]{"diffusion"}, T, true);
+		model=mt.newFunc(model, "Cathode", "def", "D_int1", Dsp, "piecewisecubic", "linear", "m^2/s", "kmol/m^3");
+	} else {
+		T=new String[]
+		{"D_p", "0", "0",
+		"0", "D_p", "0", 
+		"0", "0", "D_p"};
+		model=mt.setup(model, "Cathode", "def", new String[]{"diffusion"}, T, true);
+	}
+
+	// Electrode: Electrical conductivity //
+	T=new String[]
+	{"sigma_p", "0", "0",
+	 "0", "sigma_p", "0",
+	  "0", "0", "sigma_p"};
+	model=mt.setup(model, "Cathode", "def", new String[]{"electricconductivity"}, T, true);
+
+	// Electrode: Equilibrium potential //
+	model=mt.newProperty(model, "Cathode", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
+	model=mt.setup(model, "Cathode", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "c", "dEeqdT"}, new String[]{"Eeq_int1(c/csmax_p)", "csmax_p", "c", "0"}, false);
+	model=mt.newFunc(model, "Cathode", "ElectrodePotential", "Eeq_int1", Voltage_Cathode, "piecewisecubic", "linear", "V", "");
+	
+	
+	// Electrode: SOC definition //
+	model=mt.newProperty(model, "Cathode", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
+	model=mt.setup(model, "Cathode", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"socmax", "socmin"}, false);
+
+	// Electrode: Geometry selection //
+	model=mt.geomSelection(model, "Cathode", "geom1_"+z.select("Positive Electrode"));
+
+	// New material: Anode //
+	model=mt.newMaterial(model, "Anode", new String[]{"temperature", "concentration"});
+	model=mt.setup(model, "Anode", "def", 
+	new String[]{"T_ref", "T2", "csmax_n", "soc"}, 
+	new String[]{"298[K]", "min(393.15,max(T,223.15))", CsMaxP, "c/csmax_n"}, false);
+	
+	// Electrode: Diffusion coefficient //
+	if (diffusion) {
+		T=new String[]
+		{"D_int1(c)", "0", "0",
+		"0", "D_int1(c)", "0", 
+		"0", "0", "D_int1(c)"};
+		model=mt.setup(model, "Anode", "def", new String[]{"diffusion"}, T, true);
+		model=mt.newFunc(model, "Anode", "def", "D_int1", Dsp, "piecewisecubic", "linear", "m^2/s", "kmol/m^3");
+	} else {
+		T=new String[]
+		{"D_n", "0", "0",
+		"0", "D_n", "0", 
+		"0", "0", "D_n"};
+		model=mt.setup(model, "Anode", "def", new String[]{"diffusion"}, T, true);
+	}
+
+	// Electrode: Electrical conductivity //
+	T=new String[]
+	{"sigma_n", "0", "0",
+	 "0", "sigma_n", "0",
+	  "0", "0", "sigma_n"};
+	model=mt.setup(model, "Anode", "def", new String[]{"electricconductivity"}, T, true);
+
+	// Electrode: Equilibrium potential //
+	model=mt.newProperty(model, "Anode", "ElectrodePotential", "Equilibrium potential", new String[]{"temperature"});
+	model=mt.setup(model, "Anode", "ElectrodePotential", new String[]{"Eeq", "cEeqref", "c", "dEeqdT"}, new String[]{"Eeq_int1(c/csmax_n)", "csmax_n", "c", "0"}, false);
+	model=mt.newFunc(model, "Anode", "ElectrodePotential", "Eeq_int1", Voltage_Anode, "piecewisecubic", "linear", "V", "");
+	
+	// Electrode: SOC definition //
+	model=mt.newProperty(model, "Anode", "OperationalSOC", "Operational electrode state-of-charge", new String[]{"none"});
+	model=mt.setup(model, "Anode", "OperationalSOC", new String[]{"socmax", "socmin"}, new String[]{"socmax", "socmin"}, false);
+
+	// Electrode: Geometry selection //
+	model=mt.geomSelection(model, "Anode", "geom1_"+z.select("Negative Electrode"));
+	
+	// New material: Electrolyte //
+	model=mt.newMaterial(model, "Electrolyte", new String[]{"temperature", "concentration"});
+	model=mt.setup(model, "Electrolyte", "def", 
+	new String[]{"T_ref", "T2"}, 
+	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
+	
+	// Electrolyte: Diffusion coefficient //
+	T=new String[]
+	{"DL_int1(cl)", "0", "0", 
+	"0", "DL_int1(cl)", "0", 
+	"0", "0", "DL_int1(cl)"};
+	model=mt.newFunc(model, "Electrolyte", "def", "DL_int1", D_L, "piecewisecubic", "linear", "m^2/s", "kmol/m^3");
+	model=mt.setup(model, "Electrolyte", "def", new String[]{"diffusion"}, T, true);
+
+	// Electrolyte: Electrolyte conductivity //
+	T=new String[]
+	{"sigmal_int1(cl)", "0", "0", 
+	"0", "sigmal_int1(cl)", "0", 
+	"0", "0", "sigmal_int1(cl)"};
+	model=mt.newProperty(model, "Electrolyte", "ElectrolyteConductivity", "Electrolyte conductivity", new String[]{"temperature", "concentration"});
+	model=mt.newFunc(model, "Electrolyte", "ElectrolyteConductivity", "sigmal_int1", sigma_L, "piecewisecubic", "linear", "S/m", "");
+	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", new String[]{"sigmal"}, T, true);
+	model=mt.setup(model, "Electrolyte", "ElectrolyteConductivity", 
+	new String[]{"T_ref2", "T3"},
+	new String[]{"298[K]", "min(393.15,max(T,223.15))"}, false);
+
+	// Electrolyte: Species Properties //
+	model=mt.newProperty(model, "Electrolyte", "SpeciesProperties", "Species Properties", new String[]{"concentration"});
+	model=mt.setup(model, "Electrolyte", "SpeciesProperties", 
+	new String[]{"transpNum", "fcl"},
+	new String[]{"0.363", "1"}, false);
+
+	// Electrolyte: Geometry selection //
+	model=mt.geomSelection(model, "Electrolyte", "geom1_"+z.select("Electrolyte Separator"));
+
+	return model;
+}
+
+public static Model PhysicsDefinition(Model model, Zone z, boolean kinetic_const, boolean cbd, String k_n[][], String k_p[][]){
+	
+	// Sodium Ion Battery Model //
+	model.component("TestCase").physics().create("liion", "LithiumIonBatteryMPH", "geom1");
+	model.component("TestCase").physics("liion").selection().named("geom1_"+z.select("Sodium-Ion Cell"));
+	model.component("TestCase").physics("liion").feature("init1").set("phis", "mat1.elpot.Eeq_int1(cs0_p/csmax_p)");
+	model.component("TestCase").physics("liion").feature("init1").set("cl",   "cl0");
+	model.component("TestCase").physics("liion").label("Sodium-ion Cell");
+	model.component("TestCase").physics("liion").create("init2", "init", 3);
+	model.component("TestCase").physics("liion").feature("init2").selection().named("geom1_"+z.select("Negative Electrode"));
+	model.component("TestCase").physics("liion").feature("init2").set("phis", "mat2.elpot.Eeq_int1(cs0_n/csmax_n)");
+	model.component("TestCase").physics("liion").feature("init2").set("cl",   "cl0");
+	model.component("TestCase").physics("liion").feature("init2").label("Anode initial value");
+
+	// Negative Electrode //
+	model.component("TestCase").physics("liion").create("el1", "Electrode", 3);
+	model.component("TestCase").physics("liion").feature("el1").selection().named("geom1_"+z.select("Negative Electrode"));
+	model.component("TestCase").physics("liion").feature("el1").set("sigma_mat", "userdef");
+	model.component("TestCase").physics("liion").feature("el1").set("sigma", new String[]{"sigma_n", "0", "0", "0", "sigma_n", "0", "0", "0", "sigma_n"});
+	model.component("TestCase").physics("liion").feature("el1").label("Negative Electrode");
+
+	// Ground //	
+	model.component("TestCase").physics("liion").create("egnd1", "ElectricGround", 2);
+	model.component("TestCase").physics("liion").feature("egnd1").selection().named("geom1_"+z.select("Anodic Current Collector"));
+
+	// Positive Electrode //
+	model.component("TestCase").physics("liion").create("el2", "Electrode", 3);
+	model.component("TestCase").physics("liion").feature("el2").selection().named("geom1_"+z.select("Positive Electrode"));
+	model.component("TestCase").physics("liion").feature("el2").set("sigma_mat", "userdef");
+	model.component("TestCase").physics("liion").feature("el2").set("sigma", new String[]{"sigma_p", "0", "0", "0", "sigma_p", "0", "0", "0", "sigma_p"});
+	model.component("TestCase").physics("liion").feature("el2").label("Positive Electrode");
+	
+	// Positive Electrode Current Collector interface //
+	model.component("TestCase").physics("liion").create("ec1", "ElectrodeCurrent", 2);
+	model.component("TestCase").physics("liion").feature("ec1").selection().named("geom1_"+z.select("Cathodic Current Collector"));
+	model.component("TestCase").physics("liion").feature("ec1").set("Its", "-I_C");
+	model.component("TestCase").physics("liion").feature("ec1").set("phis0init", "mat1.elpot.Eeq_int1(cs0_p/csmax_p)");
+	model.component("TestCase").physics("liion").feature("ec1").label("Cathode-CC");
+
+	if(cbd){
+		// Carbon Binder //
+		model.component("TestCase").physics("liion").create("pcb1", "PorousConductiveBinder", 3);
+		model.component("TestCase").physics("liion").feature("pcb1").selection().named("geom1_" + z.select("Electrolyte"));
+		model.component("TestCase").physics("liion").feature("pcb1").set("ElectrolyteMaterial", "mat3");
+		model.component("TestCase").physics("liion").feature("pcb1").set("sigma_mat", "userdef");
+		model.component("TestCase").physics("liion").feature("pcb1").set("sigma", new String[]{"sigma_cbd", "0", "0", "0", "sigma_cbd", "0", "0", "0", "sigma_cbd"});
+		model.component("TestCase").physics("liion").feature("pcb1").set("epss", "eps_s_b");
+		model.component("TestCase").physics("liion").feature("pcb1").set("epsl", "eps_l_b");
+		model.component("TestCase").physics("liion").feature("pcb1").set("ElectricCorrModel", "NoCorr");
+		model.component("TestCase").physics("liion").feature("pcb1").label("Electrolyte + CBD");
+	}
+	else{
+		// Electrolyte //
+		model.component("TestCase").physics("liion").create("ice1", "Electrolyte", 3);
+		model.component("TestCase").physics("liion").feature("ice1").selection().named("geom1_"+z.select("Electrolyte"));
+		model.component("TestCase").physics("liion").feature("ice1").set("ElectrolyteMaterial", "mat3");
+		model.component("TestCase").physics("liion").feature("ice1").label("Electrolyte");
+	}
+	// Cathode-Electrolyte interface //
+	model.component("TestCase").physics("liion").create("bei1", "InternalElectrodeSurface", 2);
+	model.component("TestCase").physics("liion").feature("bei1").selection().named("geom1_"+z.select("Cathode Surface"));
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("minput_concentration", "c");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("MaterialOption", "mat1");
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
+	if(kinetic_const){
+		model.component("TestCase").func().create("int1", "Interpolation");
+		model.component("TestCase").func("int1").set("table", k_p);
+		model.component("TestCase").func("int1").set("funcname", "k_p");
+    	model.component("TestCase").func("int1").label("k_p");
+    	model.component("TestCase").func("int1").setIndex("fununit", "m/s", 0);
+    	model.component("TestCase").func("int1").setIndex("argunit", "kmol/m^3", 0);
+		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0refType", "FromRateConstant");
+    	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("k", "k_p(c)");
+	}
+	else{
+		model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("i0_ref", "i0_ref_p [A/m^2]");
+	}
+	model.component("TestCase").physics("liion").feature("bei1").feature("er1").set("cl_ref", "cl_ref");
+	model.component("TestCase").physics("liion").feature("bei1").label("Cathode/Electrolyte Interface");
+
+	// Anode-Electrolyte interface //
+	model.component("TestCase").physics("liion").create("bei2", "InternalElectrodeSurface", 2);
+	model.component("TestCase").physics("liion").feature("bei2").selection().named("geom1_"+z.select("Anode Surface"));
+	model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("minput_concentration", "c");
+	model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("MaterialOption", "mat2");
+	model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("ElectrodeKinetics", "LithiumInsertion");
+	if(kinetic_const){
+		model.component("TestCase").func().create("int2", "Interpolation");
+		model.component("TestCase").func("int2").set("table", k_n);
+		model.component("TestCase").func("int2").set("funcname", "k_n");
+    	model.component("TestCase").func("int2").label("k_n");
+    	model.component("TestCase").func("int2").setIndex("fununit", "m/s", 0);
+    	model.component("TestCase").func("int2").setIndex("argunit", "kmol/m^3", 0);
+		model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("i0refType", "FromRateConstant");
+    	model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("k", "k_n(c)");
+	}
+	else{
+		model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("i0_ref", "i0_ref_n [A/m^2]");
+	}
+	model.component("TestCase").physics("liion").feature("bei2").feature("er1").set("cl_ref", "cl_ref");
+	model.component("TestCase").physics("liion").feature("bei2").label("Anode/Electrolyte Interface");
+
+	// Sodium transport into the electrodes //
+	model.component("TestCase").physics().create("tds", "DilutedSpecies", new String[][]{{"c"}});
+	model.component("TestCase").physics("tds").selection().named("geom1_"+z.select("Electrodes"));
+	model.component("TestCase").physics("tds").feature("init1").setIndex("initc", "cs0_p", 0);
+	model.component("TestCase").physics("tds").feature("init1").label("Initial concentration for the Cathode");
+	model.component("TestCase").physics("tds").prop("TransportMechanism").set("Convection", false);
+	model.component("TestCase").physics("tds").feature("cdm1").label("Cathode");
+	model.component("TestCase").physics("tds").create("eeic1", "ElectrodeElectrolyteInterfaceCoupling", 2);
+	model.component("TestCase").physics("tds").feature("eeic1").selection().named("geom1_"+z.select("Cathode Surface"));
+	model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").set("iloc_src", "root.TestCase.liion.bei1.er1.iloc");
+	model.component("TestCase").physics("tds").feature("eeic1").feature("rc1").setIndex("Vib", 1, 0);
+	model.component("TestCase").physics("tds").feature("cdm1").set("DiffusionMaterialList", "mat1");
+	model.component("TestCase").physics("tds").feature("cdm1").set("D_c_mat", "def");
+	model.component("TestCase").physics("tds").label("Sodium in Electrode");
+	model.component("TestCase").physics("tds").create("cdm2", "Fluid", 3);
+	model.component("TestCase").physics("tds").feature("cdm2").selection().named("geom1_"+z.select("Negative Electrode"));
+	model.component("TestCase").physics("tds").feature("cdm2").set("DiffusionMaterialList", "mat2");
+    model.component("TestCase").physics("tds").feature("cdm2").set("D_c_mat", "def");
+	model.component("TestCase").physics("tds").feature("cdm2").label("Anode");
+    model.component("TestCase").physics("tds").create("eeic2", "ElectrodeElectrolyteInterfaceCoupling", 2);
+    model.component("TestCase").physics("tds").feature("eeic2").selection().named("geom1_"+z.select("Anode Surface"));
+    model.component("TestCase").physics("tds").feature("eeic2").feature("rc1").set("iloc_src", "root.TestCase.liion.bei2.er1.iloc");
+    model.component("TestCase").physics("tds").feature("eeic2").feature("rc1").setIndex("Vib", 1, 0);
+	model.component("TestCase").physics("tds").create("init2", "init", 3);
+	model.component("TestCase").physics("tds").feature("init2").selection().named("geom1_"+z.select("Negative Electrode"));
+	model.component("TestCase").physics("tds").feature("init2").setIndex("initc", "cs0_n", 0);
+	model.component("TestCase").physics("tds").feature("init2").label("Initial concentration for the Anode");
+
+
+	return model;
+}
+
+public static Model MeshConstruction(Model model, Zone z, int Refinement) throws IOException {
+	
+	
+	int i=0;
+	int j=0;
+	int c=0;
+	int k=0;
+	Mesh ms;
+	ms=new Mesh();
+	boolean mesh_problems=false;
+	boolean face_problems=true;
+	int [] faces = new int [100];
+	int [] ref = new int [100];
+	int errorfaces=0;
+	int err_c=0;
+	int found=0;
+	model.component("TestCase").mesh().create("mesh1");
+	do{
+		// In this step, the single problematic faces are meshed with a refinement level equal or lower than the specified one. //
+		if (mesh_problems)
+		{
+			model.component("TestCase").mesh("mesh1").feature().clear();
+			String outFile = "error"+String.valueOf(err_c)+".txt";
+			String l12="";
+			String [] line12 = new String [10];
+			String repair;
+			face_problems=true;
+			String currentDir = new File(".").getAbsolutePath();
+			currentDir = currentDir.substring(0, currentDir.length() - 1);
+			
+			String filePath12 = currentDir + outFile;
+			BufferedReader br12 = new BufferedReader(new FileReader(filePath12));
+			while((l12=br12.readLine())!=null)
+			{
+				i=0;
+				repair=" ";
+				if (l12.contains("Bound"))
+				{
+					c=0;
+					if(l12.contains("Boundary"))
+					{
+						line12=l12.split("Boundary ",0);
+					}
+					else
+					{
+						line12=l12.split("Boundaries ",0);
+					}
+					do
+					{
+						repair=line12[1].split(", ",0)[c];
+						try
+						{
+							model=ms.freeTriangular(model, "Repairing "+repair, Refinement-i, Integer.parseInt(repair));
+							face_problems=false;
+							found=-1;
+							for (k=0;k<errorfaces;k++)
+							{
+								if (Integer.parseInt(repair)==faces[k])
+								{
+									ref[k]=ref[k]-1;
+									found=k;
+								}
+
+							}
+							if (found<0)
+							{
+								faces[errorfaces]=Integer.parseInt(repair);
+								ref[errorfaces]=Refinement-i;
+								errorfaces+=1;
+							}
+							c=c+1;
+						}
+						catch (Exception e)
+						{
+							System.out.println("WARNING "+repair+" Refinemnet: "+String.valueOf(Refinement-i));
+							model.component("TestCase").mesh("mesh1").feature().clear();
+							face_problems=true;
+							i=i+1;
+						}
+						
+					}while((Refinement-i>=0 && (face_problems || c<line12[1].split(", ",0).length)));
+				}
+				// If it is impossible to mesh a face also with Refinement=1, it is neceassry to mesh manually the face //
+				if (Refinement-i<0)
+				{
+					System.out.println("Impossible to create mesh for face "+repair);
+					errorfaces=-1;
+					break;
+				}
+			}
+		}
+		if (errorfaces<0)
+		{
+			System.out.println("EXIT");
+			break;
+		}
+		i=0;
+		
+		model.component("TestCase").mesh("mesh1").feature().clear();
+		while((errorfaces-i)>0 && mesh_problems)
+		{
+			System.out.println("REPAIRED "+String.valueOf(faces[i])+" Refinemnet: "+String.valueOf(ref[i]));	
+			model=ms.freeTriangular(model, "Repairing "+String.valueOf(faces[i]), ref[i], faces[i]);
+			i+=1;
+		}
+		// Mesh of all the boundaries //
+		try
+		{
+			model=ms.freeTriangular(model, "Boundaries", Refinement, 0);
+			mesh_problems=false;
+		}
+		catch (Exception e)
+		{
+			mesh_problems=true;
+			System.out.println("Mesh Construction Warning: Boundaries");
+			model=ms.error(model);
+			model.component("TestCase").mesh("mesh1").feature().clear();
+			err_c+=1;
+			j=j+1;
+		}
+		
+		// Mesh of the solid phase //
+		if(mesh_problems==false)
+		{
+			try
+			{
+				model=ms.freeTetrahedral(model, "Electrode", z.select("Electrodes"), Refinement);
+				mesh_problems=false;
+			}
+			catch (Exception e)
+			{
+				mesh_problems=true;
+				System.out.println("Mesh Construction Warning: Electrode");
+				model=ms.error(model);
+				model.component("TestCase").mesh("mesh1").feature().clear();
+				err_c+=1;
+				j=j+1;
+			}
+		}
+		
+		// Mesh of the liquid phase //
+		if(mesh_problems==false)
+		{
+			try
+			{
+				model=ms.freeTetrahedral(model, "Electrolyte", z.select("Electrolyte Separator"), Refinement);
+				mesh_problems=false;
+			}
+			catch (Exception e)
+			{
+				mesh_problems=true;
+				System.out.println("Mesh Construction Warning: Electrolyte Separator");
+				model=ms.error(model);
+				if(j==1){model.component("TestCase").mesh("mesh1").feature().clear();}
+				err_c+=1;
+				j=j+1;
+			}
+		}
+	}while(mesh_problems && j<20);
+	if (j>=20)
+		System.out.println("MESH ERROR");
+	return model;
+}
+
+public static Model TestStudy(Model  model, String time, Tolerance tol) {
+
+	model.component("TestCase").view("view1").hideObjects().create("hide1");
+	model.component("TestCase").view("view1").hideObjects("hide1").init(3);
+	model.component("TestCase").view("view1").hideObjects("hide1").add("fin", 1);
+	
+	model.component("TestCase").probe().create("var1", "GlobalVariable");
+	model.component("TestCase").probe("var1").label("Global Variable Probe - E cell");
+	model.component("TestCase").probe("var1").set("expr", "liion.phis0_ec1");
+	model.component("TestCase").probe("var1").set("descractive", true);
+	model.component("TestCase").probe("var1").set("descr", "Cell voltage");
+	
+	model.study().create("std1");
+	
+	model.study("std1").create("cdi", "CurrentDistributionInitialization");
+	model.study("std1").feature("cdi").set("solnum", "auto");
+	model.study("std1").feature("cdi").set("notsolnum", "auto");
+	model.study("std1").feature("cdi").setSolveFor("/physics/liion", true);
+	model.study("std1").feature("cdi").setSolveFor("/physics/tds", false);
+	model.study("std1").feature("cdi").set("initType", "secondary");
+
+	model.study("std1").create("time", "Transient");
+	model.study("std1").feature("time").set("initialtime", "0");
+	model.study("std1").feature("time").set("solnum", "auto");
+	model.study("std1").feature("time").set("notsolnum", "auto");
+	model.study("std1").feature("time").setSolveFor("/physics/liion", true);
+	model.study("std1").feature("time").setSolveFor("/physics/tds", true);
+	model.study("std1").feature("time").set("tunit", "h");
+	model.study("std1").feature("time").set("usertol", false);
+	model.study("std1").feature("time").set("tlist", time);
+	
+	return model;
+}
+
+}
+//ENDFILE

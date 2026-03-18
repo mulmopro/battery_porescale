@@ -1,0 +1,5 @@
+C_rate 1[1/h] "Discharge C rate"
+I_C csmax_n*(socmax-socmin)*F_const*Vp_n*C_rate "Discharge current"
+cs0_n 13.52[kmol/m^3] "Initial sodium concentration in negative electrode particles"
+cs0_p 3.32[kmol/m^3] "Initial sodium concentration in positive electrode particles"
+cl0 1[kmol/m^3] "NaPF6 initial concentration in the electrolyte"
